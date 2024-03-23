@@ -1,7 +1,7 @@
 :root {
   /* vite-plugin-splash-screen */
   --vpss-background-color: #242424;
-  --vpss-loader-background: #1da1f2;
+  --vpss-loader-background: rgb(255, 203, 41);
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

@@ -36,9 +36,6 @@
     "watch:plugin": "tsup --watch --config --config tsup.config-plugin.ts",
     "example:sync": "npm run build && yalc publish --push && cd example && yalc add vite-plugin-splash-screen && npm i"
   },
-  "dependencies": {
-    "lodash.template": "4.5.0"
-  },
   "devDependencies": {
     "@types/lodash.template": "4.5.3",
     "@types/node": "20.11.30",

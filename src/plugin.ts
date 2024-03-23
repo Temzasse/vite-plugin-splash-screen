@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import template from "lodash.template";
 import type { PluginOption, ResolvedConfig } from "vite";
 
 const pluginPath = "node_modules/vite-plugin-splash-screen/src";
@@ -24,32 +23,35 @@ export function splashScreen(options: PluginOptions) {
       config = resolvedConfig;
     },
     transformIndexHtml(html: string) {
-      const stylesCss = fs.readFileSync(
+      const styles = fs.readFileSync(
         path.resolve(pluginPath, "styles.css"),
         "utf8"
       );
-
-      const templateHtml = fs.readFileSync(
-        path.resolve(pluginPath, "template.html"),
-        "utf8"
-      );
-
-      // resolve logo svg relative to the public directory
 
       const logo = fs.readFileSync(
         path.resolve(config.publicDir, options.logoSrc),
         "utf8"
       );
 
-      const splash = template(templateHtml)({ logo });
+      const splash = template(logo).replace(/\n/g, "");
 
       return (
         html
           // Add styles to end of head
-          .replace("</head>", `<style>${stylesCss}</style></head>`)
+          .replace("</head>", `<style id="vpss-style">${styles}</style></head>`)
           // Add splash screen to end of body
           .replace("</body>", `${splash}</body>`)
       );
     },
   } satisfies PluginOption;
 }
+
+const template = (logo: string) => `
+<div id="vpss">
+  <div class="vpss-logo">${logo}</div>
+  <div class="vpss-loader">
+    <div class="vpss-line"></div>
+    <div class="vpss-subline vpss-inc"></div>
+    <div class="vpss-subline vpss-dec"></div>
+  </div>
+</div>`;
