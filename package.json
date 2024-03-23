@@ -1,0 +1,50 @@
+{
+  "name": "vite-plugin-splash-screen",
+  "version": "0.1.0",
+  "description": "Vite plugin for adding a splash screen to your app",
+  "keywords": [
+    "vite",
+    "vite-plugin",
+    "splash-screen"
+  ],
+  "author": "Teemu Taskula",
+  "license": "MIT",
+  "main": "./dist/plugin/plugin.js",
+  "types": "./dist/plugin/plugin.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/plugin/plugin.js",
+      "import": "./dist/plugin/plugin.mjs",
+      "types": "./dist/plugin/plugin.d.ts"
+    },
+    "./runtime": {
+      "require": "./dist/runtime/runtime.js",
+      "import": "./dist/runtime/runtime.mjs",
+      "types": "./dist/runtime/runtime.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "run-p build:*",
+    "build:runtime": "tsup --config tsup.config-runtime.ts",
+    "build:plugin": "tsup --config tsup.config-plugin.ts",
+    "watch:runtime": "tsup --watch --config --config tsup.config-runtime.ts",
+    "watch:plugin": "tsup --watch --config --config tsup.config-plugin.ts",
+    "example:sync": "npm run build && yalc publish --push && cd example && yalc add vite-plugin-splash-screen && npm i"
+  },
+  "dependencies": {
+    "lodash.template": "4.5.0"
+  },
+  "devDependencies": {
+    "@types/lodash.template": "4.5.3",
+    "@types/node": "20.11.30",
+    "npm-run-all": "4.1.5",
+    "tsup": "8.0.2",
+    "typescript": "5.4.3",
+    "vite": "5.2.4"
+  }
+}
