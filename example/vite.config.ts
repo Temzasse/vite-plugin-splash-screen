@@ -6,5 +6,11 @@ import { splashScreen } from "../src/plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), splashScreen({ logoSrc: "vite.svg" })],
+  plugins: [
+    react(),
+    splashScreen({
+      logoSrc: "vite.svg",
+      loader: "line",
+    }),
+  ],
 });
