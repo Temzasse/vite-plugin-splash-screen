@@ -12,6 +12,7 @@
   "dependencies": {
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "vite-plugin-color-scheme": "file:.yalc/vite-plugin-color-scheme",
     "vite-plugin-splash-screen": "file:.yalc/vite-plugin-splash-screen"
   },
   "devDependencies": {

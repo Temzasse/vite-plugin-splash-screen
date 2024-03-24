@@ -87,7 +87,7 @@ function splashTemplate({
     loaderHtml = readPluginFile("loaders/dots.html");
   }
 
-  return `
+  return /*html*/`
     <div id="vpss">
       <div class="vpss-logo">${logoHtml}</div>
       ${loaderHtml}
