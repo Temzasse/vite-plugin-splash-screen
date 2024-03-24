@@ -28,7 +28,7 @@
     "src"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"No tests\" && exit 0",
     "build": "run-p build:*",
     "build:runtime": "tsup --config tsup.config-runtime.ts",
     "build:plugin": "tsup --config tsup.config-plugin.ts",
