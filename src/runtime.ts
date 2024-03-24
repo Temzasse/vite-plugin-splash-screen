@@ -10,11 +10,22 @@ export async function hideSplashScreen() {
     return;
   }
 
+  // @ts-ignore
+  const options = window.__VPSS__ || {};
+
   // Add listener to remove splash screen after animation
   splashScreen.addEventListener("animationend", () => {
     splashScreen.remove();
     splashScreenStyles.remove();
   });
+
+  if ('minDurationMs' in options && 'renderedAt' in options) {
+    const elapsedTime = new Date().getTime() - options.renderedAt;
+    const remainingTime = Math.max(options.minDurationMs - elapsedTime, 0);
+
+    // Wait for minDurationMs before starting animation
+    await new Promise((resolve) => setTimeout(resolve, remainingTime));
+  }
 
   // Start animation
   splashScreen.classList.add(`${id}-hidden`);

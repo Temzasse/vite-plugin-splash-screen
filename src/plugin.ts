@@ -2,21 +2,22 @@ import fs from "fs";
 import path from "path";
 import type { PluginOption, ResolvedConfig } from "vite";
 
-const pluginPath = "node_modules/vite-plugin-splash-screen/src";
+type LoaderType = "line" | "dots" | "none";
 
 type PluginOptions = {
   logoSrc: string;
-  loader?: "line" | "dots" | "none";
+  loaderType?: LoaderType;
+  minDurationMs?: number;
 };
 
 export function splashScreen(options: PluginOptions) {
   if (!options.logoSrc) {
     throw new Error(
-      "The `logoSrc` option is required for vite-plugin-splash-screen."
+      "The `logoSrc` option is required for vite-plugin-splash-screen!"
     );
   }
 
-  const { logoSrc, loader = "line" } = options;
+  const { logoSrc, loaderType = "line", minDurationMs } = options;
 
   let config: ResolvedConfig;
 
@@ -26,42 +27,38 @@ export function splashScreen(options: PluginOptions) {
       config = resolvedConfig;
     },
     transformIndexHtml(html: string) {
-      const baseStyles = fs.readFileSync(
-        path.resolve(pluginPath, "styles.css"),
-        "utf8"
-      );
+      const baseStyles = readPluginFile("styles.css");
 
       let loaderStyles = "";
 
-      if (loader === "line") {
-        loaderStyles = fs.readFileSync(
-          path.resolve(pluginPath, "loader-line.css"),
-          "utf8"
-        );
-      } else if (loader === "dots") {
-        loaderStyles = fs.readFileSync(
-          path.resolve(pluginPath, "loader-dots.css"),
-          "utf8"
-        );
+      if (loaderType === "line") {
+        loaderStyles = readPluginFile("loaders/line.css");
+      } else if (loaderType === "dots") {
+        loaderStyles = readPluginFile("loaders/dots.css");
       }
 
-      const logo = fs.readFileSync(
+      const logoHtml = fs.readFileSync(
         path.resolve(config.publicDir, logoSrc),
         "utf8"
       );
 
-      const splash = template({
-        logoHtml: logo,
-        loader,
+      const splash = splashTemplate({
+        logoHtml,
+        loaderType,
+        minDurationMs,
       });
+
+      const styles = `
+        <style id="vpss-style">
+          ${baseStyles}
+          ${loaderStyles}
+        </style>
+      `;
 
       return (
         html
           // Add styles to end of head
-          .replace(
-            "</head>",
-            `<style id="vpss-style">${baseStyles}${loaderStyles}</style></head>`
-          )
+          .replace("</head>", `${styles}</head>`)
           // Add splash screen to end of body
           .replace("</body>", `${splash}</body>`)
       );
@@ -69,36 +66,25 @@ export function splashScreen(options: PluginOptions) {
   } satisfies PluginOption;
 }
 
-const template = ({
+function splashTemplate({
   logoHtml,
-  loader,
+  loaderType,
+  minDurationMs,
 }: {
   logoHtml: string;
-  loader: NonNullable<PluginOptions["loader"]>;
-}) => {
+  loaderType: LoaderType;
+  minDurationMs?: number;
+}) {
   /**
    * TODO: add more loader options.
    * Inspiration: https://cssloaders.github.io/
    */
   let loaderHtml = "";
 
-  if (loader === "line") {
-    loaderHtml = `
-      <div class="vpss-loader">
-        <div class="vpss-line"></div>
-        <div class="vpss-subline vpss-inc"></div>
-        <div class="vpss-subline vpss-dec"></div>
-      </div>
-    `;
-  } else if (loader === "dots") {
-    loaderHtml = `
-      <div class="vpss-loader">
-        <div class="vpss-dot"></div>
-        <div class="vpss-dot"></div>
-        <div class="vpss-dot"></div>
-        <div class="vpss-dot"></div>
-      </div>
-    `;
+  if (loaderType === "line") {
+    loaderHtml = readPluginFile("loaders/line.html");
+  } else if (loaderType === "dots") {
+    loaderHtml = readPluginFile("loaders/dots.html");
   }
 
   return `
@@ -106,5 +92,20 @@ const template = ({
       <div class="vpss-logo">${logoHtml}</div>
       ${loaderHtml}
     </div>
+    <script>
+      (function () {
+        window.__VPSS__ = {
+          renderedAt: new Date().getTime(),
+          minDurationMs: ${minDurationMs || 0},
+        };
+      })();
+    </script>
   `;
-};
+}
+
+// TODO: is there an easier way to resolve static files relative to the plugin?
+const pluginPath = "node_modules/vite-plugin-splash-screen/src";
+
+function readPluginFile(filePath: string) {
+  return fs.readFileSync(path.resolve(pluginPath, filePath), "utf8");
+}

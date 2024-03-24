@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
+import { splashScreen } from "vite-plugin-splash-screen";
 import react from "@vitejs/plugin-react";
-
-// @ts-ignore
-import { splashScreen } from "../src/plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +8,8 @@ export default defineConfig({
     react(),
     splashScreen({
       logoSrc: "vite.svg",
-      loader: "line",
+      loaderType: "line",
+      minDurationMs: 2000, // show splash screen for at least 2 seconds
     }),
   ],
 });
