@@ -15,7 +15,7 @@
 
 #vpss .vpss-loader .vpss-subline {
   position: absolute;
-  background: var(--vpss-loader-background, #0072f5);
+  background: var(--vpss-bg-loader, /*BG_LOADER*/);
   height: 4px;
 }
 

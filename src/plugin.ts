@@ -6,6 +6,8 @@ type LoaderType = "line" | "dots" | "none";
 
 type PluginOptions = {
   logoSrc: string;
+  splashBg?: string;
+  loaderBg?: string;
   loaderType?: LoaderType;
   minDurationMs?: number;
 };
@@ -17,7 +19,13 @@ export function splashScreen(options: PluginOptions) {
     );
   }
 
-  const { logoSrc, loaderType = "line", minDurationMs } = options;
+  const {
+    logoSrc,
+    minDurationMs,
+    loaderType = "line",
+    loaderBg = "#0072f5",
+    splashBg = "#ffffff",
+  } = options;
 
   let config: ResolvedConfig;
 
@@ -50,8 +58,8 @@ export function splashScreen(options: PluginOptions) {
 
       const styles = `
         <style id="vpss-style">
-          ${baseStyles}
-          ${loaderStyles}
+          ${baseStyles.replace("/*BG_SPLASH*/", splashBg)}
+          ${loaderStyles.replace("/*BG_LOADER*/", loaderBg)}
         </style>
       `;
 
@@ -87,7 +95,7 @@ function splashTemplate({
     loaderHtml = readPluginFile("loaders/dots.html");
   }
 
-  return /*html*/`
+  return /*html*/ `
     <div id="vpss">
       <div class="vpss-logo">${logoHtml}</div>
       ${loaderHtml}

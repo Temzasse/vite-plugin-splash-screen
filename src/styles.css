@@ -5,7 +5,7 @@
   align-items: center;
   gap: 16px;
   position: fixed;
-  background-color: var(--vpss-background-color, #fff);
+  background-color: var(--vpss-bg-splash, /*BG_SPLASH*/);
   top: 0px;
   right: 0px;
   left: 0px;
