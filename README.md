@@ -12,7 +12,7 @@
   <br/>
 </div>
 
-![](media/demo-1.gif)
+![Demo of vite-plugin-splash-screen with line style loading indicator](media/demo-1.gif)
 
 ## 💦 Features
 
@@ -116,6 +116,17 @@ What type of loading indicator should be displayed below the logo.
 
 Available options: `"line"` (default), `"dots"`, `"none"`.
 
+With `"dots"` you get the following loading indicator:
+
+```js
+splashScreen({
+  logoSrc: "logo.svg",
+  loaderType: "dots",
+});
+```
+
+![Demo of vite-plugin-splash-screen with dots style loading indicator](media/demo-2.gif)
+
 Provide `"none"` to hide the loading indicator:
 
 ```js
@@ -124,6 +135,8 @@ splashScreen({
   loaderType: "none",
 });
 ```
+
+![Demo of vite-plugin-splash-screen with no loading indicator](media/demo-3.gif)
 
 ### `loaderBg`
 
