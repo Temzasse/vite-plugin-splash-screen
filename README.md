@@ -9,7 +9,10 @@
   <img alt="npm version" src="https://img.shields.io/npm/v/vite-plugin-splash-screen?style=for-the-badge">
   <img alt="npm license" src="https://img.shields.io/npm/l/vite-plugin-splash-screen?style=for-the-badge">
   <br/>
+  <br/>
 </div>
+
+![](media/demo-1.gif)
 
 ## 💦 Features
 

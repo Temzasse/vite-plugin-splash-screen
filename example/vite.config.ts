@@ -22,8 +22,8 @@ export default defineConfig({
     }),
     splashScreen({
       minDurationMs: 2000, // show splash screen for at least 2 seconds
-      logoSrc: "twitter.svg",
-      loaderType: "dots",
+      logoSrc: "vite.svg",
+      loaderType: "line",
       /**
        * If you don't need dynamic colors and don't want to use CSS variables
        * to configure the splash screen, you can provide fixed colors instead:
