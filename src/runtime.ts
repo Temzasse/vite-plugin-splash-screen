@@ -14,12 +14,14 @@ export async function hideSplashScreen() {
   const options = window.__VPSS__ || {};
 
   // Add listener to remove splash screen after animation
-  splashScreen.addEventListener("animationend", () => {
-    splashScreen.remove();
-    splashScreenStyles.remove();
+  splashScreen.addEventListener("animationend", (event) => {
+    if (event.animationName === "vpss-hide") {
+      splashScreen.remove();
+      splashScreenStyles.remove();
+    }
   });
 
-  if ('minDurationMs' in options && 'renderedAt' in options) {
+  if ("minDurationMs" in options && "renderedAt" in options) {
     const elapsedTime = new Date().getTime() - options.renderedAt;
     const remainingTime = Math.max(options.minDurationMs - elapsedTime, 0);
 
