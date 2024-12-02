@@ -1,4 +1,14 @@
+// @ts-ignore
+const options = (window.__VPSS__ || {}) as {
+  renderedAt?: number;
+  minDurationMs?: number;
+  hidden?: boolean;
+};
+
 export async function hideSplashScreen() {
+  // Splash screen already hidden, bail out
+  if (options.hidden) return;
+
   const id = "vpss";
   const splashScreen = document.getElementById(id);
   const splashScreenStyles = document.getElementById(`${id}-style`);
@@ -10,9 +20,6 @@ export async function hideSplashScreen() {
     return;
   }
 
-  // @ts-ignore
-  const options = window.__VPSS__ || {};
-
   // Add listener to remove splash screen after animation
   splashScreen.addEventListener("animationend", (event) => {
     if (event.animationName === "vpss-hide") {
@@ -21,7 +28,13 @@ export async function hideSplashScreen() {
     }
   });
 
-  if ("minDurationMs" in options && "renderedAt" in options) {
+  // Set hidden flag to prevent multiple calls
+  options.hidden = true;
+
+  if (
+    options["minDurationMs"] !== undefined &&
+    options["renderedAt"] !== undefined
+  ) {
     const elapsedTime = new Date().getTime() - options.renderedAt;
     const remainingTime = Math.max(options.minDurationMs - elapsedTime, 0);
 
