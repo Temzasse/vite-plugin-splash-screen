@@ -102,10 +102,78 @@ function splashTemplate({
     </div>
     <script>
       (function () {
+        const id = "vpss";
+        const url = new URL(window.location.href);
+        const urlParams = new URLSearchParams(url.search)
+        const param = urlParams.get(id);
+        
+        // Setup global options
         window.__VPSS__ = {
+          id: id,
+          hidden: param === "false",
           renderedAt: new Date().getTime(),
           minDurationMs: ${minDurationMs || 0},
+          getElement: function() {
+            return document.getElementById(id);
+          },
+          getStyles: function() {
+            return document.getElementById(id + "-style");
+          },
+          show: function () {
+            const element = this.getElement();
+            if (!element) return;
+
+            element.style.visibility = "visible";
+          },
+          hide: async function () {
+            const element = this.getElement();
+            if (!element) return;
+
+            // Set hidden flag to prevent multiple calls
+            this.hidden = true;
+
+            element.addEventListener("animationend", (event) => {
+              if (event.animationName === id + "-hide") {
+                this.remove();
+              }
+            });
+
+            // Optionally wait for minDurationMs before starting animation
+            if (
+              this.minDurationMs !== undefined &&
+              this.renderedAt !== undefined
+            ) {
+              const elapsedTime = new Date().getTime() - this.renderedAt;
+              const remainingTime = Math.max(this.minDurationMs - elapsedTime, 0);
+              await new Promise((resolve) => setTimeout(resolve, remainingTime));
+            }
+
+            // Start animation
+            element.classList.add(id + '-hidden');
+          },
+          remove: function () {
+            const element = this.getElement();
+            const styles = this.getStyles();
+
+            if (element && styles) {
+              element.remove();
+              styles.remove();
+            }
+          }
         };
+
+        if (window.__VPSS__.hidden) {
+          window.__VPSS__.remove();
+        } else {
+          window.__VPSS__.show();
+        }
+        
+        // Remove query param from URL
+        if (param) {
+          urlParams.delete(id);
+          url.search = urlParams.toString();
+          window.history.replaceState({}, "", url);
+        }
       })();
     </script>
   `;

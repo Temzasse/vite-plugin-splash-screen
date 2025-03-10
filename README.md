@@ -202,3 +202,30 @@ export default defineConfig({
   ],
 });
 ```
+
+## 🛠️ Advanced usage
+
+### Prevent showing splash screen with URL search parameter
+
+In some cases you might want to prevent the splash screen from being displayed,
+eg. if you need to manually trigger a page refresh in your application code after
+the splash screen has been hidden. For example when the user changes the language
+and you need to reload the page to apply the new translations, or when the user
+switches workspaces in your application.
+
+In these cases it is probably better to not show the splash screen even though
+technically the app is being initialized from scratch again as the user has
+already seen the splash screen once.
+
+You can prevent the splash screen from being displayed by adding a URL search
+parameter to the URL before reloading the page.
+
+```tsx
+const params = new URLSearchParams(location.search);
+params.set("vpss", "false");
+window.location.search = params.toString();
+```
+
+The added search parameter will be automatically removed by the plugin when
+the splash screen is initialized after the page reload, so you don't need to
+remove it manually yourself.

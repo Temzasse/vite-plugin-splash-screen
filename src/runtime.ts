@@ -1,47 +1,24 @@
 // @ts-ignore
-const options = (window.__VPSS__ || {}) as {
-  renderedAt?: number;
-  minDurationMs?: number;
+const vpss = (window.__VPSS__ || {}) as {
   hidden?: boolean;
+  getElement?: () => HTMLElement | null;
+  getStyles?: () => HTMLStyleElement | null;
+  hide?: () => Promise<void>;
 };
 
 export async function hideSplashScreen() {
   // Splash screen already hidden, bail out
-  if (options.hidden) return;
+  if (vpss.hidden) return;
 
-  const id = "vpss";
-  const splashScreen = document.getElementById(id);
-  const splashScreenStyles = document.getElementById(`${id}-style`);
+  const element = vpss.getElement?.();
+  const styles = vpss.getStyles?.();
 
-  if (!splashScreen || !splashScreenStyles) {
+  if (!element || !styles) {
     console.error(
       "Splash screen not found. Did you forget to add the `vite-plugin-splash-screen` plugin?"
     );
     return;
   }
 
-  // Add listener to remove splash screen after animation
-  splashScreen.addEventListener("animationend", (event) => {
-    if (event.animationName === "vpss-hide") {
-      splashScreen.remove();
-      splashScreenStyles.remove();
-    }
-  });
-
-  // Set hidden flag to prevent multiple calls
-  options.hidden = true;
-
-  if (
-    options["minDurationMs"] !== undefined &&
-    options["renderedAt"] !== undefined
-  ) {
-    const elapsedTime = new Date().getTime() - options.renderedAt;
-    const remainingTime = Math.max(options.minDurationMs - elapsedTime, 0);
-
-    // Wait for minDurationMs before starting animation
-    await new Promise((resolve) => setTimeout(resolve, remainingTime));
-  }
-
-  // Start animation
-  splashScreen.classList.add(`${id}-hidden`);
+  await vpss.hide?.();
 }
