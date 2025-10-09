@@ -56,12 +56,10 @@ export function splashScreen(options: PluginOptions) {
         minDurationMs,
       });
 
-      const styles = `
-        <style id="vpss-style">
-          ${baseStyles.replace("/*BG_SPLASH*/", splashBg)}
-          ${loaderStyles.replace("/*BG_LOADER*/", loaderBg)}
-        </style>
-      `;
+      const b = baseStyles.replace("/*BG_SPLASH*/", splashBg);
+      const l = loaderStyles.replace("/*BG_LOADER*/", loaderBg);
+
+      const styles = `<style id="vpss-style">${b}${l}</style>`;
 
       return (
         html
