@@ -1,3 +1,12 @@
+@keyframes vpss-hide {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 #vpss {
   visibility: hidden;
   display: flex;
@@ -18,13 +27,4 @@
 #vpss.vpss-hidden {
   pointer-events: none;
   animation: vpss-hide 200ms forwards;
-}
-
-@keyframes vpss-hide {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
 }
