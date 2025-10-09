@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-splash-screen",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Vite plugin for adding a splash screen to your app",
   "keywords": [
     "vite",
