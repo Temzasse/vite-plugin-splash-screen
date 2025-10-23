@@ -130,12 +130,6 @@ function splashTemplate({
             // Set hidden flag to prevent multiple calls
             this.hidden = true;
 
-            element.addEventListener("animationend", (event) => {
-              if (event.animationName === id + "-hide") {
-                this.remove();
-              }
-            });
-
             // Optionally wait for minDurationMs before starting animation
             if (
               this.minDurationMs !== undefined &&
@@ -146,8 +140,14 @@ function splashTemplate({
               await new Promise((resolve) => setTimeout(resolve, remainingTime));
             }
 
-            // Start animation
-            element.classList.add(id + '-hidden');
+            const animation = element.animate(
+              [{ opacity: 1 }, { opacity: 0 }],
+              { duration: 200, easing: "ease-out", fill: "forwards" }
+            );
+
+            animation.onfinish = () => {
+              this.remove();
+            };
           },
           remove: function () {
             const element = this.getElement();
