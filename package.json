@@ -13,14 +13,24 @@
   "types": "./dist/plugin/plugin.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/plugin/plugin.js",
-      "import": "./dist/plugin/plugin.mjs",
-      "types": "./dist/plugin/plugin.d.ts"
+      "import": {
+        "types": "./dist/plugin/plugin.d.mts",
+        "default": "./dist/plugin/plugin.mjs"
+      },
+      "require": {
+        "types": "./dist/plugin/plugin.d.ts",
+        "default": "./dist/plugin/plugin.js"
+      }
     },
     "./runtime": {
-      "require": "./dist/runtime/runtime.js",
-      "import": "./dist/runtime/runtime.mjs",
-      "types": "./dist/runtime/runtime.d.ts"
+      "import": {
+        "types": "./dist/runtime/runtime.d.mts",
+        "default": "./dist/runtime/runtime.mjs"
+      },
+      "require": {
+        "types": "./dist/runtime/runtime.d.ts",
+        "default": "./dist/runtime/runtime.js"
+      }
     }
   },
   "files": [
@@ -29,21 +39,29 @@
   ],
   "scripts": {
     "test": "echo \"No tests\" && exit 0",
-    "build": "run-p build:*",
-    "build:runtime": "tsup --config tsup.config-runtime.ts",
-    "build:plugin": "tsup --config tsup.config-plugin.ts",
-    "watch": "run-p watch:*",
-    "watch:runtime": "tsup --watch --config tsup.config-runtime.ts --onSuccess \"npm run example:sync\"",
-    "watch:plugin": "tsup --watch --config tsup.config-plugin.ts --onSuccess \"npm run example:sync\"",
+    "build": "tsdown",
+    "build:verify": "attw --pack . --profile node16",
+    "watch": "tsdown --watch --on-success \"npm run example:sync\"",
+    "format:check": "oxfmt --check ./src ./example/src ./example/vite.config.ts tsdown.config.mts",
+    "format:write": "oxfmt --write ./src ./example/src ./example/vite.config.ts tsdown.config.mts",
+    "lint:check": "oxlint --deny-warnings ./src ./example/src ./example/vite.config.ts tsdown.config.mts",
+    "lint:write": "oxlint --deny-warnings --fix ./src ./example/src ./example/vite.config.ts tsdown.config.mts",
+    "typecheck": "tsc --noEmit",
+    "verify": "run-p format:check lint:check typecheck",
     "example:link": "yalc publish --push && cd example && yalc add vite-plugin-splash-screen && npm i",
     "example:sync": "yalc push && cd example && npm i",
-    "release": "npm run build && np"
+    "release": "npm run verify && npm run build && npm run build:verify && np"
   },
   "devDependencies": {
-    "@types/node": "20.11.30",
+    "@arethetypeswrong/cli": "0.18.5",
+    "@types/node": "26.6.6",
     "npm-run-all": "4.1.5",
-    "tsup": "8.0.2",
-    "typescript": "5.4.3",
-    "vite": "5.2.4"
-  }
+    "oxfmt": "0.79.0",
+    "oxlint": "1.94.0",
+    "tsdown": "0.23.7",
+    "typescript": "7.0.2",
+    "vite": "8.3.8"
+  },
+  "repository": "https://github.com/Temzasse/vite-plugin-splash-screen",
+  "module": "./dist/plugin/plugin.mjs"
 }

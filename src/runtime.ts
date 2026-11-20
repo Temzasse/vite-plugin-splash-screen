@@ -15,7 +15,7 @@ export async function hideSplashScreen() {
 
   if (!element || !styles) {
     console.error(
-      "Splash screen not found. Did you forget to add the `vite-plugin-splash-screen` plugin?"
+      'Splash screen not found. Did you forget to add the `vite-plugin-splash-screen` plugin?'
     );
     return;
   }

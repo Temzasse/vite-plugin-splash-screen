@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { hideSplashScreen } from "vite-plugin-splash-screen/runtime";
+import { useEffect } from 'react';
+import { hideSplashScreen } from 'vite-plugin-splash-screen/runtime';
 
 export default function App() {
   useEffect(() => {
