@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:html-logo": "vite --mode html-logo",
     "build": "tsc && vite build",
+    "build:html-logo": "tsc && vite build --mode html-logo",
     "lint": "oxlint --deny-warnings src vite.config.ts",
     "preview": "vite preview"
   },

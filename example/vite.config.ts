@@ -4,7 +4,7 @@ import { colorScheme } from 'vite-plugin-color-scheme';
 import { splashScreen } from 'vite-plugin-splash-screen';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     colorScheme({
@@ -20,19 +20,28 @@ export default defineConfig({
         },
       },
     }),
-    splashScreen({
-      minDurationMs: 2000, // show splash screen for at least 2 seconds
-      logoSrc: 'vite.svg',
-      loaderType: 'line',
-      /**
-       * If you don't need dynamic colors and don't want to use CSS variables
-       * to configure the splash screen, you can provide fixed colors instead:
-       */
-      // loaderBg: "#ffcb29",
-      // splashBg: "#242424",
-    }),
+    // Run with `--mode html-logo` (eg. `npm run dev:html-logo`) to try the
+    // animated HTML logo that waits for its intro animation to finish.
+    mode === 'html-logo'
+      ? splashScreen({
+          logoSrc: 'src/splash-logo.html', // relative to the project root
+          loaderType: 'dots',
+          waitForAnimations: true,
+          fadeDurationMs: 400,
+        })
+      : splashScreen({
+          minDurationMs: 2000, // show splash screen for at least 2 seconds
+          logoSrc: 'vite.svg', // relative to `publicDir`
+          loaderType: 'line',
+          /**
+           * If you don't need dynamic colors and don't want to use CSS variables
+           * to configure the splash screen, you can provide fixed colors instead:
+           */
+          // loaderBg: "#ffcb29",
+          // splashBg: "#242424",
+        }),
   ],
   server: {
     port: 4000,
   },
-});
+}));
