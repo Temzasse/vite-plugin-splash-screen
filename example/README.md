@@ -1,30 +1,20 @@
-# React + TypeScript + Vite
+# vite-plugin-splash-screen examples
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A landing page (`index.html`) that links to one page per splash screen
+example (`examples/*.html`). The examples are defined in
+[`src/examples.ts`](src/examples.ts), which both the landing page and
+`vite.config.ts` use, so adding an example there adds a page and its splash
+screen config.
 
-Currently, two official plugins are available:
+The plugin normally applies to every HTML page, so `vite.config.ts` restricts
+each `splashScreen()` instance to its own page with a small `onlyForPage`
+wrapper. A regular single-page app doesn't need this.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```sh
+# from the repo root: build the plugin and push it into the example
+npm run build && npm run example:sync
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+cd example
+npm run dev      # http://localhost:4000
+npm run build && npm run preview
 ```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
