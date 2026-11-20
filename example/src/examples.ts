@@ -121,6 +121,17 @@ export const examples: SplashExample[] = [
     },
   },
   {
+    id: 'custom-loader',
+    title: 'Custom loader',
+    description:
+      'A loader from your own HTML file with loaderSrc, using the --vpss-bg-loader color.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderSrc: 'src/custom-loader.html',
+    },
+  },
+  {
     id: 'html-logo',
     title: 'Animated HTML logo',
     description:

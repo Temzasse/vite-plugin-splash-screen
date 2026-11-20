@@ -40,6 +40,8 @@ const loaders: Record<LoaderType, { css: string; html: string }> = {
 
 type RenderInput = {
   logoHtml: string;
+  /** Contents of `loaderSrc`, replaces the built-in loader */
+  customLoaderHtml?: string;
   nonce?: string;
 };
 
@@ -52,13 +54,19 @@ function escapeHtml(value: string) {
     .replaceAll("'", '&#39;');
 }
 
-export function renderStyles(options: ResolvedOptions) {
+export function renderStyles(options: ResolvedOptions, customLoader = false) {
   const base = baseStyles.replaceAll('/*BG_SPLASH*/', options.splashBg);
-  const loaderCss = loaders[options.loaderType].css;
+  const loaderCss = customLoader ? '' : loaders[options.loaderType].css;
   return (base + loaderCss).replaceAll('/*BG_LOADER*/', options.loaderBg);
 }
 
-export function renderLoader(options: ResolvedOptions) {
+export function renderLoader(
+  options: ResolvedOptions,
+  customLoaderHtml?: string
+) {
+  if (customLoaderHtml !== undefined) {
+    return `<div class="vpss-loader vpss-custom-loader" aria-hidden="true">${customLoaderHtml}</div>`;
+  }
   return loaders[options.loaderType].html.replace(
     '__VPSS_LOADER_TEXT__',
     escapeHtml(options.loaderText)
@@ -77,15 +85,16 @@ export function renderScript(options: ResolvedOptions) {
 
 export function renderTags(
   options: ResolvedOptions,
-  { logoHtml, nonce }: RenderInput
+  { logoHtml, customLoaderHtml, nonce }: RenderInput
 ): HtmlTagDescriptor[] {
   const nonceAttrs = nonce ? { nonce } : {};
+  const customLoader = customLoaderHtml !== undefined;
 
   return [
     {
       tag: 'style',
       attrs: { id: 'vpss-style', ...nonceAttrs },
-      children: renderStyles(options),
+      children: renderStyles(options, customLoader),
       injectTo: 'head',
     },
     {
@@ -99,7 +108,7 @@ export function renderTags(
       },
       // Logo and loaders are hidden from screen readers (eg. so an SVG <title>
       // isn't read); the splash element's aria-label is announced instead.
-      children: `<div class="vpss-logo" aria-hidden="true">${logoHtml}</div>${renderLoader(options)}`,
+      children: `<div class="vpss-logo" aria-hidden="true">${logoHtml}</div>${renderLoader(options, customLoaderHtml)}`,
       injectTo: 'body-prepend',
     },
     {

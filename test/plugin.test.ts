@@ -261,6 +261,52 @@ describe('loader types', () => {
   });
 });
 
+describe('custom loader', () => {
+  it('inlines the loaderSrc file instead of a built-in loader', async () => {
+    const root = createFixture({
+      'src/my-loader.html':
+        '<div id="my-loader"><style>#my-loader{color:var(--vpss-bg-loader)}</style>…</div>',
+    });
+    const { document } = await buildHtml(
+      { loaderSrc: 'src/my-loader.html' },
+      { root }
+    );
+    const loader = document.querySelector('#vpss .vpss-custom-loader')!;
+    const css = document.getElementById('vpss-style')!.textContent!;
+
+    expect(loader.getAttribute('aria-hidden')).toBe('true');
+    expect(loader.querySelector('#my-loader')).not.toBeNull();
+    expect(document.querySelectorAll('#vpss .vpss-loader')).toHaveLength(1);
+    expect(css).not.toContain('vpss-increase');
+  });
+
+  it('resolves loaderSrc relative to publicDir', async () => {
+    const root = createFixture({ 'public/loader.svg': '<svg id="ld"></svg>' });
+    const { document } = await buildHtml({ loaderSrc: 'loader.svg' }, { root });
+    expect(
+      document.querySelector('#vpss .vpss-custom-loader #ld')
+    ).not.toBeNull();
+  });
+
+  it('rejects loaderSrc combined with loaderType', () => {
+    expect(() =>
+      splashScreen({
+        logoSrc: 'logo.svg',
+        loaderSrc: 'x.html',
+        loaderType: 'dots',
+      })
+    ).toThrow(/either `loaderSrc`.*or `loaderType`/);
+  });
+
+  it('throws a helpful error when the loader file is missing', async () => {
+    await expect(
+      buildHtml({ loaderSrc: 'missing-loader.html' })
+    ).rejects.toThrow(
+      /Loader file not found for `loaderSrc: "missing-loader.html"`/
+    );
+  });
+});
+
 describe('logo', () => {
   it('inlines an HTML logo relative to the project root', async () => {
     const root = createFixture({

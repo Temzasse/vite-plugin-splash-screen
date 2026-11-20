@@ -25,6 +25,11 @@ export type SplashScreenOptions = {
   loaderType?: LoaderType;
   /** Text animated by the `'shimmer'` loader. @default 'Loading' */
   loaderText?: string;
+  /**
+   * Path to a custom loading indicator (an HTML file, may include a
+   * `<style>`). Resolved like `logoSrc`. Can't be combined with `loaderType`.
+   */
+  loaderSrc?: string;
   /** Minimum time the splash screen stays visible. @default 0 */
   minDurationMs?: number;
   /** Duration of the fade-out animation. @default 200 */
@@ -42,7 +47,11 @@ export type SplashScreenOptions = {
   ariaLabel?: string;
 };
 
-export type ResolvedOptions = Required<SplashScreenOptions>;
+export type ResolvedOptions = Required<
+  Omit<SplashScreenOptions, 'loaderSrc'>
+> & {
+  loaderSrc: string | undefined;
+};
 
 const LOADER_TYPES: LoaderType[] = [
   'line',
@@ -86,10 +95,21 @@ export function resolveOptions(options: SplashScreenOptions): ResolvedOptions {
     fail('The `logoSrc` option is required!');
   }
 
+  if (options.loaderSrc !== undefined && options.loaderType !== undefined) {
+    fail(
+      'Use either `loaderSrc` (custom loader) or `loaderType` (built-in loader), not both.'
+    );
+  }
+  if (options.loaderSrc !== undefined) {
+    if (typeof options.loaderSrc !== 'string' || !options.loaderSrc) {
+      fail('`loaderSrc` must be a non-empty string.');
+    }
+  }
+
   const loaderType = options.loaderType ?? 'line';
 
   if (options.loaderText !== undefined) {
-    if (loaderType !== 'shimmer') {
+    if (loaderType !== 'shimmer' || options.loaderSrc !== undefined) {
       fail('`loaderText` is only used with `loaderType: "shimmer"`.');
     }
     if (typeof options.loaderText !== 'string' || !options.loaderText.trim()) {
@@ -105,11 +125,13 @@ export function resolveOptions(options: SplashScreenOptions): ResolvedOptions {
     loaderBg: options.loaderBg ?? '#0072f5',
     loaderType,
     loaderText,
+    loaderSrc: options.loaderSrc,
     minDurationMs: options.minDurationMs ?? 0,
     fadeDurationMs: options.fadeDurationMs ?? 200,
     waitForAnimations: options.waitForAnimations ?? false,
     ariaLabel:
-      options.ariaLabel ?? (loaderType === 'shimmer' ? loaderText : 'Loading'),
+      options.ariaLabel ??
+      (loaderType === 'shimmer' && !options.loaderSrc ? loaderText : 'Loading'),
   };
 
   if (!LOADER_TYPES.includes(resolved.loaderType)) {

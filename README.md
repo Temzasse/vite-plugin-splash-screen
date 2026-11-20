@@ -182,6 +182,8 @@ Which built-in loading indicator is displayed below the logo. Only the CSS of th
 
 All loaders use the [`loaderBg`](#loaderbg) color. When the user prefers reduced motion, they are shown without movement and with a gentle pulse instead.
 
+To use your own loading indicator, see [`loaderSrc`](#loadersrc).
+
 With `"dots"` you get the following loading indicator:
 
 ```js
@@ -215,6 +217,45 @@ splashScreen({
   loaderText: 'Loading your workspace',
 });
 ```
+
+### `loaderSrc`
+
+Path to a custom loading indicator, an HTML (or SVG) file that is inlined below the logo as-is. It is resolved the same way as `logoSrc`, reloads the page in dev when it changes, and is hidden from screen readers. `loaderSrc` can't be combined with `loaderType`.
+
+```html
+<!-- src/my-loader.html -->
+<div id="my-loader">
+  <style>
+    #my-loader {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--vpss-bg-loader);
+      animation: my-loader-spin 1s ease-in-out infinite;
+    }
+    @keyframes my-loader-spin {
+      to {
+        transform: rotate(180deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #my-loader {
+        animation: none;
+      }
+    }
+  </style>
+</div>
+```
+
+```js
+splashScreen({
+  logoSrc: 'logo.svg',
+  loaderSrc: 'src/my-loader.html',
+  loaderBg: '#ff0000', // available as var(--vpss-bg-loader)
+});
+```
+
+The same guidance as for [animated logos](#animated-logos) applies: scope CSS under a unique id, use unique ids for SVG definitions, and add a reduced-motion fallback. Make loader animations infinite so that [`waitForAnimations`](#waitforanimations) doesn't wait for them.
 
 ### `loaderBg`
 
