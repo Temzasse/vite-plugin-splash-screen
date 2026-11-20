@@ -165,33 +165,98 @@ describe('colors', () => {
 });
 
 describe('loader types', () => {
+  // [loaderType, element selector, element count, keyframes it defines]
+  const LOADERS = [
+    ['line', '.vpss-line', 1, 'vpss-increase'],
+    ['dots', '.vpss-dot', 4, 'vpss-dot1'],
+    ['shimmer', '.vpss-shimmer-text', 1, 'vpss-shimmer'],
+    ['blocks', '.vpss-block', 8, 'vpss-block'],
+    ['spinner', '.vpss-spinner-ring', 1, 'vpss-spin'],
+    ['pulse', '.vpss-pulse-circle', 2, 'vpss-pulse-grow'],
+    ['bars', '.vpss-bar', 5, 'vpss-bar'],
+    ['bounce', '.vpss-bounce-dot', 3, 'vpss-bounce'],
+    ['orbit', '.vpss-orbit-dot', 1, 'vpss-orbit'],
+  ] as const;
+
+  const keyframesOf = (name: string) => `@keyframes ${name} {`;
+
   it('renders the line loader by default', async () => {
     const { document } = await buildHtml();
     expect(document.querySelectorAll('#vpss .vpss-line')).toHaveLength(1);
-    expect(document.getElementById('vpss-style')!.textContent).toContain(
-      'vpss-increase'
-    );
   });
 
-  it('renders the dots loader', async () => {
-    const { document } = await buildHtml({ loaderType: 'dots' });
-    expect(document.querySelectorAll('#vpss .vpss-dot')).toHaveLength(4);
-    expect(document.getElementById('vpss-style')!.textContent).toContain(
-      'vpss-dot1'
-    );
-  });
+  it.each(LOADERS)(
+    'renders the %s loader with only its own CSS',
+    async (loaderType, selector, count, keyframes) => {
+      const { document } = await buildHtml({ loaderType, loaderBg: '#123456' });
+      const loader = document.querySelector('#vpss .vpss-loader')!;
+      const css = document.getElementById('vpss-style')!.textContent!;
+
+      expect(loader.getAttribute('aria-hidden')).toBe('true');
+      expect(loader.querySelectorAll(selector)).toHaveLength(count);
+      expect(css).toContain(keyframesOf(keyframes));
+      expect(css).not.toContain('/*BG_LOADER*/');
+      expect(css).toContain('var(--vpss-bg-loader, #123456)');
+
+      for (const [other, , , otherKeyframes] of LOADERS) {
+        if (other !== loaderType) {
+          expect(css).not.toContain(keyframesOf(otherKeyframes));
+        }
+      }
+    }
+  );
 
   it('renders no loader with "none"', async () => {
     const { document } = await buildHtml({ loaderType: 'none' });
     const css = document.getElementById('vpss-style')!.textContent!;
+
     expect(document.querySelector('#vpss .vpss-loader')).toBeNull();
-    expect(css).not.toContain('vpss-increase');
-    expect(css).not.toContain('vpss-dot1');
+    for (const [, , , keyframes] of LOADERS) {
+      expect(css).not.toContain(keyframesOf(keyframes));
+    }
+  });
+
+  it('renders and escapes the shimmer text and uses it as the label', async () => {
+    const { document } = await buildHtml({
+      loaderType: 'shimmer',
+      loaderText: 'Loading <b>"app"</b>',
+    });
+    const text = document.querySelector('#vpss .vpss-shimmer-text')!;
+
+    expect(text.textContent).toBe('Loading <b>"app"</b>');
+    expect(text.querySelector('b')).toBeNull();
+    expect(document.getElementById('vpss')!.getAttribute('aria-label')).toBe(
+      'Loading <b>"app"</b>'
+    );
+  });
+
+  it('defaults the shimmer text to "Loading"', async () => {
+    const { document } = await buildHtml({ loaderType: 'shimmer' });
+    expect(
+      document.querySelector('#vpss .vpss-shimmer-text')!.textContent
+    ).toBe('Loading');
+  });
+
+  it('prefers an explicit ariaLabel over the shimmer text', async () => {
+    const { document } = await buildHtml({
+      loaderType: 'shimmer',
+      loaderText: 'Warming up',
+      ariaLabel: 'Loading app',
+    });
+    expect(document.getElementById('vpss')!.getAttribute('aria-label')).toBe(
+      'Loading app'
+    );
+  });
+
+  it('rejects loaderText without the shimmer loader', () => {
+    expect(() =>
+      splashScreen({ logoSrc: 'logo.svg', loaderText: 'Hi' })
+    ).toThrow(/`loaderText` is only used with `loaderType: "shimmer"`/);
   });
 
   it('rejects unknown loader types', () => {
     expect(() =>
-      splashScreen({ logoSrc: 'logo.svg', loaderType: 'spinner' as never })
+      splashScreen({ logoSrc: 'logo.svg', loaderType: 'triangle' as never })
     ).toThrow(/`loaderType` must be one of/);
   });
 });

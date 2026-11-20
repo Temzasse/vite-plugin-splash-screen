@@ -49,13 +49,13 @@ Import the plugin and add it to you Vite config.
 The only required option is `logoSrc`, the path to the logo that is displayed on the splash screen.
 
 ```js
-import { splashScreen } from "vite-plugin-splash-screen";
+import { splashScreen } from 'vite-plugin-splash-screen';
 
 export default defineConfig({
   plugins: [
     /* ...other plugins... */
     splashScreen({
-      logoSrc: "logo.svg",
+      logoSrc: 'logo.svg',
     }),
   ],
 });
@@ -75,7 +75,7 @@ If the file can't be found, the plugin throws an error listing the paths it trie
 Then in your application code (written in React, Vue, Svelte, whatever), you can hide the splash screen when the application is ready.
 
 ```js
-import { hideSplashScreen } from "vite-plugin-splash-screen/runtime";
+import { hideSplashScreen } from 'vite-plugin-splash-screen/runtime';
 
 hideSplashScreen();
 ```
@@ -83,8 +83,8 @@ hideSplashScreen();
 For example in a React app, you can hide the splash screen in the `useEffect` hook.
 
 ```jsx
-import { useEffect } from "react";
-import { hideSplashScreen } from "vite-plugin-splash-screen/runtime";
+import { useEffect } from 'react';
+import { hideSplashScreen } from 'vite-plugin-splash-screen/runtime';
 
 export function App() {
   useEffect(() => {
@@ -113,7 +113,7 @@ For example, to display the splash screen for at least 2 seconds:
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
+  logoSrc: 'logo.svg',
   minDurationMs: 2000,
 });
 ```
@@ -124,7 +124,7 @@ Duration of the fade-out animation in milliseconds (default `200`). The fade is 
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
+  logoSrc: 'logo.svg',
   fadeDurationMs: 400,
 });
 ```
@@ -137,7 +137,7 @@ This lets a logo animation complete without hand-tuning `minDurationMs`.
 
 ```js
 splashScreen({
-  logoSrc: "splash-logo.html",
+  logoSrc: 'splash-logo.html',
   waitForAnimations: true,
 });
 ```
@@ -154,29 +154,40 @@ After `hideSplashScreen()` is called, the splash screen goes through these steps
 
 ### `ariaLabel`
 
-The accessible label of the splash screen (default `"Loading"`). The splash element has `role="status"` and `aria-live="polite"` so screen readers announce it, and the logo is hidden from screen readers so eg. an SVG `<title>` isn't read.
+The accessible label of the splash screen (default `"Loading"`, or the [`loaderText`](#loadertext) with the shimmer loader). The splash element has `role="status"` and `aria-live="polite"` so screen readers announce it, and the logo is hidden from screen readers so eg. an SVG `<title>` isn't read.
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
-  ariaLabel: "Loading My App",
+  logoSrc: 'logo.svg',
+  ariaLabel: 'Loading My App',
 });
 ```
 
 ### `loaderType`
 
-What type of loading indicator should be displayed below the logo.
+Which built-in loading indicator is displayed below the logo. Only the CSS of the selected loader is added to the page.
 
-Available options: `"line"` (default), `"dots"`, `"none"`.
+| `loaderType`       | Description                                                                |
+| ------------------ | -------------------------------------------------------------------------- |
+| `"line"` (default) | Indeterminate progress line                                                |
+| `"dots"`           | Sliding dots                                                               |
+| `"shimmer"`        | Text with a highlight sweeping across it (see [`loaderText`](#loadertext)) |
+| `"blocks"`         | Row of squares lighting up in a sweep                                      |
+| `"spinner"`        | Rotating ring                                                              |
+| `"pulse"`          | Expanding, fading circles                                                  |
+| `"bars"`           | Equalizer-style bars                                                       |
+| `"bounce"`         | Three bouncing dots                                                        |
+| `"orbit"`          | Dot circling a track                                                       |
+| `"none"`           | No loading indicator                                                       |
 
-When the user prefers reduced motion, the loading indicators are replaced with a gentle pulse.
+All loaders use the [`loaderBg`](#loaderbg) color. When the user prefers reduced motion, they are shown without movement and with a gentle pulse instead.
 
 With `"dots"` you get the following loading indicator:
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
-  loaderType: "dots",
+  logoSrc: 'logo.svg',
+  loaderType: 'dots',
 });
 ```
 
@@ -186,24 +197,36 @@ Provide `"none"` to hide the loading indicator:
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
-  loaderType: "none",
+  logoSrc: 'logo.svg',
+  loaderType: 'none',
 });
 ```
 
 ![Demo of vite-plugin-splash-screen with no loading indicator](media/demo-3.gif)
 
+### `loaderText`
+
+The text animated by the `"shimmer"` loader (default `"Loading"`). It is also used as the [`ariaLabel`](#arialabel) unless you set one.
+
+```js
+splashScreen({
+  logoSrc: 'logo.svg',
+  loaderType: 'shimmer',
+  loaderText: 'Loading your workspace',
+});
+```
+
 ### `loaderBg`
 
-The background color of the loading indicator (default `#0072f5`).
+The color of the loading indicator (default `#0072f5`).
 
 Example:
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
-  loaderType: "line",
-  loaderBg: "#ff0000",
+  logoSrc: 'logo.svg',
+  loaderType: 'line',
+  loaderBg: '#ff0000',
 });
 ```
 
@@ -217,8 +240,8 @@ Example:
 
 ```js
 splashScreen({
-  logoSrc: "logo.svg",
-  splashBg: "#000000",
+  logoSrc: 'logo.svg',
+  splashBg: '#000000',
 });
 ```
 
@@ -234,28 +257,26 @@ The following CSS variables are available:
 ⚠️ Note: in order to avoid flickering of colors you should set the CSS variables **before** the splash screen is rendered! You can easily achieve this by utilizing the [vite-plugin-color-scheme](https://github.com/Temzasse/vite-plugin-color-scheme) plugin to inline a small script to setup the CSS variables based on the user's preferred color scheme.
 
 ```js
+import { colorScheme } from 'vite-plugin-color-scheme';
 // vite.config.ts
-import { splashScreen } from "vite-plugin-splash-screen";
-import { colorScheme } from "vite-plugin-color-scheme";
+import { splashScreen } from 'vite-plugin-splash-screen';
 
 export default defineConfig({
   plugins: [
     colorScheme({
-      defaultScheme: "light",
+      defaultScheme: 'light',
       variables: {
         light: {
-          "--vpss-bg-splash": "#ffffff",
-          "--vpss-bg-loader": "#b18500",
+          '--vpss-bg-splash': '#ffffff',
+          '--vpss-bg-loader': '#b18500',
         },
         dark: {
-          "--vpss-bg-splash": "#242424",
-          "--vpss-bg-loader": "#ffcb29",
+          '--vpss-bg-splash': '#242424',
+          '--vpss-bg-loader': '#ffcb29',
         },
       },
     }),
-    splashScreen({
-      /* ...your options... */
-    }),
+    splashScreen({/* ...your options... */}),
   ],
 });
 ```
@@ -280,18 +301,24 @@ The splash element has a `data-vpss-state` attribute that is `"visible"` while s
       font: 700 40px system-ui;
       animation: my-splash-logo-in 600ms ease-out both;
     }
-    #vpss[data-vpss-state="hiding"] #my-splash-logo {
+    #vpss[data-vpss-state='hiding'] #my-splash-logo {
       animation: my-splash-logo-out 400ms ease-in forwards;
     }
     @keyframes my-splash-logo-in {
-      from { opacity: 0; transform: translateY(12px); }
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
     }
     @keyframes my-splash-logo-out {
-      to { opacity: 0; transform: scale(1.1); }
+      to {
+        opacity: 0;
+        transform: scale(1.1);
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       #my-splash-logo,
-      #vpss[data-vpss-state="hiding"] #my-splash-logo {
+      #vpss[data-vpss-state='hiding'] #my-splash-logo {
         animation: none;
       }
     }
@@ -302,7 +329,7 @@ The splash element has a `data-vpss-state` attribute that is `"visible"` while s
 
 ```js
 splashScreen({
-  logoSrc: "src/splash-logo.html",
+  logoSrc: 'src/splash-logo.html',
   waitForAnimations: true,
 });
 ```
@@ -313,8 +340,8 @@ The splash screen uses an inline `<style>` and `<script>`. If you use a strict C
 
 ```js
 export default defineConfig({
-  html: { cspNonce: "YOUR_NONCE_PLACEHOLDER" },
-  plugins: [splashScreen({ logoSrc: "logo.svg" })],
+  html: { cspNonce: 'YOUR_NONCE_PLACEHOLDER' },
+  plugins: [splashScreen({ logoSrc: 'logo.svg' })],
 });
 ```
 
@@ -323,7 +350,7 @@ export default defineConfig({
 The options type is exported as `SplashScreenOptions`:
 
 ```ts
-import type { SplashScreenOptions } from "vite-plugin-splash-screen";
+import type { SplashScreenOptions } from 'vite-plugin-splash-screen';
 ```
 
 ### Prevent showing splash screen with URL search parameter
@@ -343,7 +370,7 @@ parameter to the URL before reloading the page.
 
 ```tsx
 const params = new URLSearchParams(location.search);
-params.set("vpss", "false");
+params.set('vpss', 'false');
 window.location.search = params.toString();
 ```
 

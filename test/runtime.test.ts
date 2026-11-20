@@ -10,7 +10,9 @@ type TestWindow = Window & { __VPSS__?: unknown };
 /** Render the plugin's tags into the jsdom document and run the inline script */
 function setupSplash(options: Partial<SplashScreenOptions> = {}) {
   const resolved = resolveOptions({ logoSrc: 'logo.svg', ...options });
-  const [style, splash, script] = renderTags(resolved, '<svg></svg>');
+  const [style, splash, script] = renderTags(resolved, {
+    logoHtml: '<svg></svg>',
+  });
 
   document.head.insertAdjacentHTML(
     'beforeend',

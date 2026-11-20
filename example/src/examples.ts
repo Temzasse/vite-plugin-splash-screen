@@ -49,6 +49,78 @@ export const examples: SplashExample[] = [
     },
   },
   {
+    id: 'shimmer',
+    title: 'Shimmer text',
+    description:
+      'Text with a highlight sweeping across it, also used as the accessible label.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'shimmer',
+      loaderText: 'Loading your workspace',
+    },
+  },
+  {
+    id: 'blocks',
+    title: 'Blocks loader',
+    description: 'Row of squares lighting up in a sweep.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'blocks',
+    },
+  },
+  {
+    id: 'spinner',
+    title: 'Spinner loader',
+    description: 'Classic rotating ring.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'spinner',
+    },
+  },
+  {
+    id: 'pulse',
+    title: 'Pulse loader',
+    description: 'Expanding, fading circles.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'pulse',
+    },
+  },
+  {
+    id: 'bars',
+    title: 'Bars loader',
+    description: 'Equalizer-style wave.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'bars',
+    },
+  },
+  {
+    id: 'bounce',
+    title: 'Bounce loader',
+    description: 'Three bouncing dots.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'bounce',
+    },
+  },
+  {
+    id: 'orbit',
+    title: 'Orbit loader',
+    description: 'Dot circling a track.',
+    appInitMs: 2000,
+    options: {
+      logoSrc: 'vite.svg',
+      loaderType: 'orbit',
+    },
+  },
+  {
     id: 'html-logo',
     title: 'Animated HTML logo',
     description:

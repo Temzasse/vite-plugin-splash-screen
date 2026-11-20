@@ -38,7 +38,10 @@ export function splashScreen(options: SplashScreenOptions): Plugin {
     },
     transformIndexHtml() {
       const logoHtml = readLogo(logoPath, resolved.logoSrc);
-      return renderTags(resolved, logoHtml, config.html?.cspNonce);
+      return renderTags(resolved, {
+        logoHtml,
+        nonce: config.html?.cspNonce,
+      });
     },
   };
 }

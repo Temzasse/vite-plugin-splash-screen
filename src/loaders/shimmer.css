@@ -1,0 +1,52 @@
+#vpss .vpss-shimmer-text {
+  display: inline-block;
+  max-width: 80vw;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font:
+    500 18px/1.4 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  color: var(--vpss-bg-loader, /*BG_LOADER*/);
+}
+
+/* Sweep a highlight across dimmed text where supported, solid text otherwise */
+@supports (background-clip: text) and
+  (color: color-mix(in srgb, red 50%, transparent)) {
+  #vpss .vpss-shimmer-text {
+    --vpss-shimmer-base: color-mix(
+      in srgb,
+      var(--vpss-bg-loader, /*BG_LOADER*/) 45%,
+      transparent
+    );
+    color: transparent;
+    background: linear-gradient(
+      90deg,
+      var(--vpss-shimmer-base) 40%,
+      var(--vpss-bg-loader, /*BG_LOADER*/) 50%,
+      var(--vpss-shimmer-base) 60%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: vpss-shimmer 1.8s linear infinite;
+  }
+}
+
+@keyframes vpss-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #vpss .vpss-shimmer-text {
+    background: none;
+    color: var(--vpss-bg-loader, /*BG_LOADER*/);
+  }
+}

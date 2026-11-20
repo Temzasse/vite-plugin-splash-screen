@@ -1,0 +1,33 @@
+#vpss .vpss-orbit {
+  width: 36px;
+  height: 36px;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+#vpss .vpss-orbit-track {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(150, 150, 150, 0.35);
+  animation: vpss-orbit 1.1s linear infinite;
+}
+
+#vpss .vpss-orbit-dot {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--vpss-bg-loader, /*BG_LOADER*/);
+}
+
+@keyframes vpss-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}

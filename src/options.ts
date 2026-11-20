@@ -1,4 +1,14 @@
-export type LoaderType = 'line' | 'dots' | 'none';
+export type LoaderType =
+  | 'line'
+  | 'dots'
+  | 'shimmer'
+  | 'blocks'
+  | 'spinner'
+  | 'pulse'
+  | 'bars'
+  | 'bounce'
+  | 'orbit'
+  | 'none';
 
 export type SplashScreenOptions = {
   /**
@@ -11,8 +21,10 @@ export type SplashScreenOptions = {
   splashBg?: string;
   /** Loading indicator color. @default '#0072f5' */
   loaderBg?: string;
-  /** Loading indicator type. @default 'line' */
+  /** Built-in loading indicator. @default 'line' */
   loaderType?: LoaderType;
+  /** Text animated by the `'shimmer'` loader. @default 'Loading' */
+  loaderText?: string;
   /** Minimum time the splash screen stays visible. @default 0 */
   minDurationMs?: number;
   /** Duration of the fade-out animation. @default 200 */
@@ -23,13 +35,27 @@ export type SplashScreenOptions = {
    * ignored and the wait is capped at 5 seconds. @default false
    */
   waitForAnimations?: boolean;
-  /** Accessible label announced by screen readers. @default 'Loading' */
+  /**
+   * Accessible label announced by screen readers.
+   * @default `loaderText` with the shimmer loader, otherwise 'Loading'
+   */
   ariaLabel?: string;
 };
 
 export type ResolvedOptions = Required<SplashScreenOptions>;
 
-const LOADER_TYPES: LoaderType[] = ['line', 'dots', 'none'];
+const LOADER_TYPES: LoaderType[] = [
+  'line',
+  'dots',
+  'shimmer',
+  'blocks',
+  'spinner',
+  'pulse',
+  'bars',
+  'bounce',
+  'orbit',
+  'none',
+];
 
 // Characters that could break out of the `var(--x, <color>)` CSS context
 const UNSAFE_CSS_VALUE = /[;{}<>"'\\]|\/\*|\*\//;
@@ -60,15 +86,30 @@ export function resolveOptions(options: SplashScreenOptions): ResolvedOptions {
     fail('The `logoSrc` option is required!');
   }
 
+  const loaderType = options.loaderType ?? 'line';
+
+  if (options.loaderText !== undefined) {
+    if (loaderType !== 'shimmer') {
+      fail('`loaderText` is only used with `loaderType: "shimmer"`.');
+    }
+    if (typeof options.loaderText !== 'string' || !options.loaderText.trim()) {
+      fail('`loaderText` must be a non-empty string.');
+    }
+  }
+
+  const loaderText = options.loaderText ?? 'Loading';
+
   const resolved: ResolvedOptions = {
     logoSrc: options.logoSrc,
     splashBg: options.splashBg ?? '#ffffff',
     loaderBg: options.loaderBg ?? '#0072f5',
-    loaderType: options.loaderType ?? 'line',
+    loaderType,
+    loaderText,
     minDurationMs: options.minDurationMs ?? 0,
     fadeDurationMs: options.fadeDurationMs ?? 200,
     waitForAnimations: options.waitForAnimations ?? false,
-    ariaLabel: options.ariaLabel ?? 'Loading',
+    ariaLabel:
+      options.ariaLabel ?? (loaderType === 'shimmer' ? loaderText : 'Loading'),
   };
 
   if (!LOADER_TYPES.includes(resolved.loaderType)) {
