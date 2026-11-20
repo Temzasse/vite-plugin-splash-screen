@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite-plugin-splash-screen/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>min-duration · vite-plugin-splash-screen</title>
+    <script type="module" crossorigin src="/vite-plugin-splash-screen/assets/src-Dr8cI8vI.js"></script>
+    <script type="module" crossorigin src="/vite-plugin-splash-screen/assets/main-example-CFyFr4rF.js"></script>
+    <link rel="stylesheet" crossorigin href="/vite-plugin-splash-screen/assets/src-CheeIn0v.css">
+  
+<script>
+  (function () {
+    const defaultScheme = 'dark';
+    const persistKey = '';
+    const adaptive = true;
+    const variables = {"light":{"--vpss-bg-splash":"#ffffff","--vpss-bg-loader":"#b18500"},"dark":{"--vpss-bg-splash":"#1b1b1a","--vpss-bg-loader":"#ffcb29"}};
+
+    function updateColorScheme(colorScheme) {
+      window.COLOR_SCHEME = colorScheme;
+
+      const root = document.documentElement;
+
+      root.style.setProperty('color-scheme', colorScheme);
+
+      const scheme = variables[colorScheme];
+
+      for (const [key, value] of Object.entries(scheme)) {
+        root.style.setProperty(key, value);
+      }
+    }
+
+    function getColorScheme() {
+      let persisted = null;
+
+      if (persistKey) {
+        try {
+          persisted = JSON.parse(window.localStorage.getItem(persistKey));
+        } catch (error) {}
+      }
+
+      const hasPersistedPreference =
+        typeof persisted === 'string' &&
+        ['light', 'dark'].indexOf(persisted) !== -1;
+
+      if (hasPersistedPreference) {
+        return persisted;
+      }
+
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const hasMediaQueryPreference = typeof mql.matches === 'boolean';
+
+      if (hasMediaQueryPreference) {
+        return mql.matches ? 'dark' : 'light';
+      }
+
+      return defaultScheme;
+    }
+
+    // Get and update initial color scheme
+    const colorScheme = getColorScheme();
+
+    updateColorScheme(colorScheme);
+
+    // Id adaptive is enabled, listen for changes
+    if (adaptive) {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          updateColorScheme(e.matches ? "dark" : "light");
+        });
+    }
+  })();
+</script>
+  <style id="vpss-style">#vpss {
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  position: fixed;
+  background-color: var(--vpss-bg-splash, #ffffff);
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  bottom: 0;
+  z-index: 99999;
+  opacity: 1;
+}
+
+/* Reduced motion: replace moving loaders with a gentle opacity pulse */
+@media (prefers-reduced-motion: reduce) {
+  #vpss .vpss-loader {
+    animation: vpss-pulse 2s ease-in-out infinite;
+  }
+  #vpss .vpss-loader * {
+    animation: none !important;
+  }
+}
+
+@keyframes vpss-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+#vpss .vpss-loader {
+  position: relative;
+  overflow: hidden;
+  width: 100px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+#vpss .vpss-loader .vpss-line {
+  position: absolute;
+  background: rgba(150, 150, 150, 0.4);
+  width: 150%;
+  height: 4px;
+}
+
+#vpss .vpss-loader .vpss-subline {
+  position: absolute;
+  background: var(--vpss-bg-loader, #0072f5);
+  height: 4px;
+}
+
+#vpss .vpss-loader .vpss-inc {
+  animation: vpss-increase 1.5s infinite;
+}
+
+#vpss .vpss-loader .vpss-dec {
+  animation: vpss-decrease 1.5s 0.5s infinite;
+}
+
+@keyframes vpss-increase {
+  from {
+    left: -5%;
+    width: 5%;
+  }
+  to {
+    left: 130%;
+    width: 100%;
+  }
+}
+
+@keyframes vpss-decrease {
+  from {
+    left: -80%;
+    width: 80%;
+  }
+  to {
+    left: 110%;
+    width: 10%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #vpss .vpss-loader .vpss-inc {
+    left: 0;
+    width: 100%;
+  }
+  #vpss .vpss-loader .vpss-dec {
+    display: none;
+  }
+}
+</style>
+</head>
+  <body>
+    <div id="vpss" role="status" aria-live="polite" aria-label="Loading" data-vpss-state="visible"><div class="vpss-logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="72" height="72" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg></div><div class="vpss-loader" aria-hidden="true">
+  <div class="vpss-line"></div>
+  <div class="vpss-subline vpss-inc"></div>
+  <div class="vpss-subline vpss-dec"></div>
+</div>
+</div>
+    <script>// Inlined into index.html by the plugin. Plain JS: it runs as-is in the browser.
+// `__VPSS_OPTIONS__` is replaced with a JSON object at build time.
+(function (options) {
+  const id = 'vpss';
+  // Upper bound for `waitForAnimations` so a broken animation can't block the app
+  const MAX_ANIMATION_WAIT_MS = 5000;
+  const url = new URL(window.location.href);
+  const param = url.searchParams.get(id);
+
+  let hiding = null;
+
+  function wait(ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  function prefersReducedMotion() {
+    return (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  // Resolves when all finite CSS animations inside the splash have finished.
+  // Infinite animations (eg. the loaders) are ignored.
+  function waitForFiniteAnimations(element) {
+    if (typeof element.getAnimations !== 'function') return Promise.resolve();
+
+    const finite = element
+      .getAnimations({ subtree: true })
+      .filter(function (a) {
+        const timing = a.effect && a.effect.getComputedTiming();
+        return timing && isFinite(timing.endTime);
+      });
+
+    if (finite.length === 0) return Promise.resolve();
+
+    const finished = Promise.all(
+      finite.map(function (a) {
+        return a.finished.catch(function () {});
+      })
+    );
+
+    return Promise.race([finished, wait(MAX_ANIMATION_WAIT_MS)]);
+  }
+
+  window.__VPSS__ = {
+    id: id,
+    hidden: param === 'false',
+    renderedAt: performance.now(),
+    minDurationMs: options.minDurationMs,
+    fadeDurationMs: options.fadeDurationMs,
+    waitForAnimations: options.waitForAnimations,
+    getElement: function () {
+      return document.getElementById(id);
+    },
+    getStyles: function () {
+      return document.getElementById(id + '-style');
+    },
+    show: function () {
+      const element = this.getElement();
+      if (!element) return;
+      element.style.visibility = 'visible';
+    },
+    // Returns a promise that resolves once the splash screen has been removed.
+    // Repeated calls return the same promise.
+    hide: function () {
+      const self = this;
+      if (hiding) return hiding;
+
+      const element = self.getElement();
+      if (!element) return Promise.resolve();
+
+      // Set hidden flag to signal that hiding has started
+      self.hidden = true;
+
+      hiding = (async function () {
+        const elapsed = performance.now() - self.renderedAt;
+        const remaining = Math.max(self.minDurationMs - elapsed, 0);
+        if (remaining > 0) await wait(remaining);
+
+        element.setAttribute('data-vpss-state', 'hiding');
+
+        if (self.waitForAnimations) {
+          await waitForFiniteAnimations(element);
+        }
+
+        const duration = prefersReducedMotion() ? 0 : self.fadeDurationMs;
+
+        if (duration > 0 && typeof element.animate === 'function') {
+          const animation = element.animate([{ opacity: 1 }, { opacity: 0 }], {
+            duration: duration,
+            easing: 'ease-out',
+            fill: 'forwards',
+          });
+          // Timer fallback: animations don't advance in background tabs, so
+          // don't let a paused animation keep the splash around forever
+          await Promise.race([
+            animation.finished.catch(function () {}),
+            wait(duration + 100),
+          ]);
+        }
+
+        self.remove();
+      })();
+
+      return hiding;
+    },
+    remove: function () {
+      const element = this.getElement();
+      const styles = this.getStyles();
+      if (element) element.remove();
+      if (styles) styles.remove();
+    },
+  };
+
+  if (window.__VPSS__.hidden) {
+    window.__VPSS__.remove();
+  } else {
+    window.__VPSS__.show();
+  }
+
+  // Remove query param from URL
+  if (param) {
+    url.searchParams.delete(id);
+    window.history.replaceState(window.history.state, '', url);
+  }
+})({"minDurationMs":2000,"fadeDurationMs":200,"waitForAnimations":false});
+</script>
+
+    <div id="root" data-example="min-duration"></div>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite-plugin-splash-screen/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vite-plugin-splash-screen examples</title>
+    <script type="module" crossorigin src="/vite-plugin-splash-screen/assets/main-CpJwXEve.js"></script>
+    <link rel="modulepreload" crossorigin href="/vite-plugin-splash-screen/assets/src-Dr8cI8vI.js">
+    <link rel="stylesheet" crossorigin href="/vite-plugin-splash-screen/assets/src-CheeIn0v.css">
+  
+<script>
+  (function () {
+    const defaultScheme = 'dark';
+    const persistKey = '';
+    const adaptive = true;
+    const variables = {"light":{"--vpss-bg-splash":"#ffffff","--vpss-bg-loader":"#b18500"},"dark":{"--vpss-bg-splash":"#1b1b1a","--vpss-bg-loader":"#ffcb29"}};
+
+    function updateColorScheme(colorScheme) {
+      window.COLOR_SCHEME = colorScheme;
+
+      const root = document.documentElement;
+
+      root.style.setProperty('color-scheme', colorScheme);
+
+      const scheme = variables[colorScheme];
+
+      for (const [key, value] of Object.entries(scheme)) {
+        root.style.setProperty(key, value);
+      }
+    }
+
+    function getColorScheme() {
+      let persisted = null;
+
+      if (persistKey) {
+        try {
+          persisted = JSON.parse(window.localStorage.getItem(persistKey));
+        } catch (error) {}
+      }
+
+      const hasPersistedPreference =
+        typeof persisted === 'string' &&
+        ['light', 'dark'].indexOf(persisted) !== -1;
+
+      if (hasPersistedPreference) {
+        return persisted;
+      }
+
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const hasMediaQueryPreference = typeof mql.matches === 'boolean';
+
+      if (hasMediaQueryPreference) {
+        return mql.matches ? 'dark' : 'light';
+      }
+
+      return defaultScheme;
+    }
+
+    // Get and update initial color scheme
+    const colorScheme = getColorScheme();
+
+    updateColorScheme(colorScheme);
+
+    // Id adaptive is enabled, listen for changes
+    if (adaptive) {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          updateColorScheme(e.matches ? "dark" : "light");
+        });
+    }
+  })();
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

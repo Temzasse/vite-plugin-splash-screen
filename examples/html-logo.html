@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite-plugin-splash-screen/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>html-logo · vite-plugin-splash-screen</title>
+    <script type="module" crossorigin src="/vite-plugin-splash-screen/assets/src-Dr8cI8vI.js"></script>
+    <script type="module" crossorigin src="/vite-plugin-splash-screen/assets/main-example-CFyFr4rF.js"></script>
+    <link rel="stylesheet" crossorigin href="/vite-plugin-splash-screen/assets/src-CheeIn0v.css">
+  
+<script>
+  (function () {
+    const defaultScheme = 'dark';
+    const persistKey = '';
+    const adaptive = true;
+    const variables = {"light":{"--vpss-bg-splash":"#ffffff","--vpss-bg-loader":"#b18500"},"dark":{"--vpss-bg-splash":"#1b1b1a","--vpss-bg-loader":"#ffcb29"}};
+
+    function updateColorScheme(colorScheme) {
+      window.COLOR_SCHEME = colorScheme;
+
+      const root = document.documentElement;
+
+      root.style.setProperty('color-scheme', colorScheme);
+
+      const scheme = variables[colorScheme];
+
+      for (const [key, value] of Object.entries(scheme)) {
+        root.style.setProperty(key, value);
+      }
+    }
+
+    function getColorScheme() {
+      let persisted = null;
+
+      if (persistKey) {
+        try {
+          persisted = JSON.parse(window.localStorage.getItem(persistKey));
+        } catch (error) {}
+      }
+
+      const hasPersistedPreference =
+        typeof persisted === 'string' &&
+        ['light', 'dark'].indexOf(persisted) !== -1;
+
+      if (hasPersistedPreference) {
+        return persisted;
+      }
+
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const hasMediaQueryPreference = typeof mql.matches === 'boolean';
+
+      if (hasMediaQueryPreference) {
+        return mql.matches ? 'dark' : 'light';
+      }
+
+      return defaultScheme;
+    }
+
+    // Get and update initial color scheme
+    const colorScheme = getColorScheme();
+
+    updateColorScheme(colorScheme);
+
+    // Id adaptive is enabled, listen for changes
+    if (adaptive) {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          updateColorScheme(e.matches ? "dark" : "light");
+        });
+    }
+  })();
+</script>
+  <style id="vpss-style">#vpss {
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  position: fixed;
+  background-color: var(--vpss-bg-splash, #ffffff);
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  bottom: 0;
+  z-index: 99999;
+  opacity: 1;
+}
+
+/* Reduced motion: replace moving loaders with a gentle opacity pulse */
+@media (prefers-reduced-motion: reduce) {
+  #vpss .vpss-loader {
+    animation: vpss-pulse 2s ease-in-out infinite;
+  }
+  #vpss .vpss-loader * {
+    animation: none !important;
+  }
+}
+
+@keyframes vpss-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+#vpss .vpss-loader {
+  display: inline-block;
+  position: relative;
+  width: 72px;
+  height: 10px;
+}
+
+#vpss .vpss-loader .vpss-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vpss-bg-loader, #0072f5);
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+#vpss .vpss-loader .vpss-dot:nth-child(1) {
+  left: 8px;
+  animation: vpss-dot1 0.6s infinite;
+}
+
+#vpss .vpss-loader .vpss-dot:nth-child(2) {
+  left: 8px;
+  animation: vpss-dot2 0.6s infinite;
+}
+
+#vpss .vpss-loader .vpss-dot:nth-child(3) {
+  left: 32px;
+  animation: vpss-dot2 0.6s infinite;
+}
+
+#vpss .vpss-loader .vpss-dot:nth-child(4) {
+  left: 56px;
+  animation: vpss-dot3 0.6s infinite;
+}
+
+@keyframes vpss-dot1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes vpss-dot2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+
+@keyframes vpss-dot3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+</style>
+</head>
+  <body>
+    <div id="vpss" role="status" aria-live="polite" aria-label="Loading" data-vpss-state="visible"><div class="vpss-logo" aria-hidden="true"><!-- Example animated HTML logo. All CSS is scoped under #example-logo because
+an inlined <style> applies to the whole page. -->
+<div id="example-logo">
+  <style>
+    #example-logo {
+      font:
+        700 40px/1 system-ui,
+        sans-serif;
+      letter-spacing: 0.04em;
+      color: var(--vpss-bg-loader, #0072f5);
+    }
+    #example-logo span {
+      display: inline-block;
+      opacity: 0;
+      animation: example-logo-in 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    #example-logo span:nth-of-type(2) {
+      animation-delay: 250ms;
+    }
+    #example-logo span:nth-of-type(3) {
+      animation-delay: 500ms;
+    }
+    #example-logo span:nth-of-type(4) {
+      animation-delay: 750ms;
+    }
+
+    /* One-shot exit animation, waited for with `waitForAnimations: true` */
+    #vpss[data-vpss-state='hiding'] #example-logo {
+      animation: example-logo-out 700ms ease-in forwards;
+    }
+
+    @keyframes example-logo-in {
+      from {
+        opacity: 0;
+        transform: translateY(-24px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes example-logo-out {
+      to {
+        opacity: 0;
+        transform: scale(1.15);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #example-logo span,
+      #vpss[data-vpss-state='hiding'] #example-logo {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+  <span>V</span><span>P</span><span>S</span><span>S</span>
+</div>
+</div><div class="vpss-loader" aria-hidden="true">
+  <div class="vpss-dot"></div>
+  <div class="vpss-dot"></div>
+  <div class="vpss-dot"></div>
+  <div class="vpss-dot"></div>
+</div>
+</div>
+    <script>// Inlined into index.html by the plugin. Plain JS: it runs as-is in the browser.
+// `__VPSS_OPTIONS__` is replaced with a JSON object at build time.
+(function (options) {
+  const id = 'vpss';
+  // Upper bound for `waitForAnimations` so a broken animation can't block the app
+  const MAX_ANIMATION_WAIT_MS = 5000;
+  const url = new URL(window.location.href);
+  const param = url.searchParams.get(id);
+
+  let hiding = null;
+
+  function wait(ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  function prefersReducedMotion() {
+    return (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  // Resolves when all finite CSS animations inside the splash have finished.
+  // Infinite animations (eg. the loaders) are ignored.
+  function waitForFiniteAnimations(element) {
+    if (typeof element.getAnimations !== 'function') return Promise.resolve();
+
+    const finite = element
+      .getAnimations({ subtree: true })
+      .filter(function (a) {
+        const timing = a.effect && a.effect.getComputedTiming();
+        return timing && isFinite(timing.endTime);
+      });
+
+    if (finite.length === 0) return Promise.resolve();
+
+    const finished = Promise.all(
+      finite.map(function (a) {
+        return a.finished.catch(function () {});
+      })
+    );
+
+    return Promise.race([finished, wait(MAX_ANIMATION_WAIT_MS)]);
+  }
+
+  window.__VPSS__ = {
+    id: id,
+    hidden: param === 'false',
+    renderedAt: performance.now(),
+    minDurationMs: options.minDurationMs,
+    fadeDurationMs: options.fadeDurationMs,
+    waitForAnimations: options.waitForAnimations,
+    getElement: function () {
+      return document.getElementById(id);
+    },
+    getStyles: function () {
+      return document.getElementById(id + '-style');
+    },
+    show: function () {
+      const element = this.getElement();
+      if (!element) return;
+      element.style.visibility = 'visible';
+    },
+    // Returns a promise that resolves once the splash screen has been removed.
+    // Repeated calls return the same promise.
+    hide: function () {
+      const self = this;
+      if (hiding) return hiding;
+
+      const element = self.getElement();
+      if (!element) return Promise.resolve();
+
+      // Set hidden flag to signal that hiding has started
+      self.hidden = true;
+
+      hiding = (async function () {
+        const elapsed = performance.now() - self.renderedAt;
+        const remaining = Math.max(self.minDurationMs - elapsed, 0);
+        if (remaining > 0) await wait(remaining);
+
+        element.setAttribute('data-vpss-state', 'hiding');
+
+        if (self.waitForAnimations) {
+          await waitForFiniteAnimations(element);
+        }
+
+        const duration = prefersReducedMotion() ? 0 : self.fadeDurationMs;
+
+        if (duration > 0 && typeof element.animate === 'function') {
+          const animation = element.animate([{ opacity: 1 }, { opacity: 0 }], {
+            duration: duration,
+            easing: 'ease-out',
+            fill: 'forwards',
+          });
+          // Timer fallback: animations don't advance in background tabs, so
+          // don't let a paused animation keep the splash around forever
+          await Promise.race([
+            animation.finished.catch(function () {}),
+            wait(duration + 100),
+          ]);
+        }
+
+        self.remove();
+      })();
+
+      return hiding;
+    },
+    remove: function () {
+      const element = this.getElement();
+      const styles = this.getStyles();
+      if (element) element.remove();
+      if (styles) styles.remove();
+    },
+  };
+
+  if (window.__VPSS__.hidden) {
+    window.__VPSS__.remove();
+  } else {
+    window.__VPSS__.show();
+  }
+
+  // Remove query param from URL
+  if (param) {
+    url.searchParams.delete(id);
+    window.history.replaceState(window.history.state, '', url);
+  }
+})({"minDurationMs":0,"fadeDurationMs":400,"waitForAnimations":true});
+</script>
+
+    <div id="root" data-example="html-logo"></div>
+  </body>
+</html>
