@@ -11,5 +11,11 @@
     "no-var": "warn",
     "prefer-const": "error"
   },
+  "overrides": [
+    {
+      "files": ["test/**"],
+      "rules": { "typescript/no-non-null-assertion": "off" }
+    }
+  ],
   "ignorePatterns": ["**/dist/**", "**/.yalc/**", "**/node_modules/**"]
 }
