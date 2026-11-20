@@ -12,27 +12,27 @@ an inlined <style> applies to the whole page. -->
     #example-logo span {
       display: inline-block;
       opacity: 0;
-      animation: example-logo-in 600ms ease-out forwards;
+      animation: example-logo-in 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
-    #example-logo span:nth-child(2) {
-      animation-delay: 150ms;
+    #example-logo span:nth-of-type(2) {
+      animation-delay: 250ms;
     }
-    #example-logo span:nth-child(3) {
-      animation-delay: 300ms;
+    #example-logo span:nth-of-type(3) {
+      animation-delay: 500ms;
     }
-    #example-logo span:nth-child(4) {
-      animation-delay: 450ms;
+    #example-logo span:nth-of-type(4) {
+      animation-delay: 750ms;
     }
 
     /* One-shot exit animation, waited for with `waitForAnimations: true` */
     #vpss[data-vpss-state='hiding'] #example-logo {
-      animation: example-logo-out 500ms ease-in forwards;
+      animation: example-logo-out 700ms ease-in forwards;
     }
 
     @keyframes example-logo-in {
       from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(-24px);
       }
       to {
         opacity: 1;

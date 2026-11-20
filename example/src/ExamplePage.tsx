@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { hideSplashScreen } from 'vite-plugin-splash-screen/runtime';
 
-import type { SplashExample } from './examples';
+import { formatOptions, type SplashExample } from './examples';
+import { Header } from './Header';
 
 export function ExamplePage({ example }: { example: SplashExample }) {
-  const [hiddenAfterMs, setHiddenAfterMs] = useState<number | null>(null);
+  const [removedAfterMs, setRemovedAfterMs] = useState<number | null>(null);
 
   useEffect(() => {
     // Simulate app initialization (loading data, translations etc.)
     const timeout = setTimeout(async () => {
       await hideSplashScreen();
-      setHiddenAfterMs(Math.round(performance.now()));
+      setRemovedAfterMs(Math.round(performance.now()));
     }, example.appInitMs);
 
     return () => clearTimeout(timeout);
@@ -23,28 +24,51 @@ export function ExamplePage({ example }: { example: SplashExample }) {
   }
 
   return (
-    <main className="page">
-      <a href="/">← All examples</a>
-      <h1>{example.title}</h1>
-      <p className="muted">{example.description}</p>
+    <>
+      <Header back />
+      <main className="page example">
+        <section className="hero">
+          <p className="eyebrow">Example</p>
+          <h1>{example.title}</h1>
+          <p className="lead">{example.description}</p>
+        </section>
 
-      <dl className="stats">
-        <dt>App ready after</dt>
-        <dd>{example.appInitMs} ms</dd>
-        <dt>Splash removed after</dt>
-        <dd>{hiddenAfterMs === null ? '…' : `${hiddenAfterMs} ms`}</dd>
-      </dl>
+        <div className="example-grid">
+          <section className="panel">
+            <h2>What just happened</h2>
+            <dl className="stats">
+              <div>
+                <dt>App ready after</dt>
+                <dd>{example.appInitMs} ms</dd>
+              </div>
+              <div>
+                <dt>Splash removed after</dt>
+                <dd>
+                  {removedAfterMs === null ? '…' : `${removedAfterMs} ms`}
+                </dd>
+              </div>
+            </dl>
+            <div className="actions">
+              <button className="button" onClick={() => location.reload()}>
+                Replay splash screen
+              </button>
+              <button
+                className="button secondary"
+                onClick={reloadWithoutSplash}
+              >
+                Reload without it
+              </button>
+            </div>
+          </section>
 
-      <pre>{JSON.stringify(example.options, null, 2)}</pre>
-
-      <div className="actions">
-        <button className="button" onClick={() => location.reload()}>
-          Replay splash
-        </button>
-        <button className="button secondary" onClick={reloadWithoutSplash}>
-          Reload without splash
-        </button>
-      </div>
-    </main>
+          <section className="panel">
+            <h2>vite.config.ts</h2>
+            <pre className="code">
+              <code>{formatOptions(example.options)}</code>
+            </pre>
+          </section>
+        </div>
+      </main>
+    </>
   );
 }

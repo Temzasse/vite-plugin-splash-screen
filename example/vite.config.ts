@@ -20,7 +20,7 @@ function onlyForPage(page: string, plugin: Plugin): Plugin {
     throw new Error('Expected transformIndexHtml to be a function');
   }
 
-  const filename = resolve(root, `.${page}`);
+  const filename = resolve(root, page);
 
   return {
     ...plugin,
@@ -44,7 +44,7 @@ export default defineConfig({
           '--vpss-bg-loader': '#b18500',
         },
         dark: {
-          '--vpss-bg-splash': '#242424',
+          '--vpss-bg-splash': '#1b1b1a',
           '--vpss-bg-loader': '#ffcb29',
         },
       },
@@ -60,7 +60,7 @@ export default defineConfig({
         ...Object.fromEntries(
           examples.map((example) => [
             example.id,
-            resolve(root, `.${examplePath(example)}`),
+            resolve(root, examplePath(example)),
           ])
         ),
       },
@@ -68,5 +68,7 @@ export default defineConfig({
   },
   server: {
     port: 4000,
+    // The landing page previews the plugin's loader CSS from ../src
+    fs: { allow: ['..'] },
   },
 });
