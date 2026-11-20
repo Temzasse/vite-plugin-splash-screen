@@ -12,8 +12,8 @@
   "dependencies": {
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "vite-plugin-color-scheme": "file:.yalc/vite-plugin-color-scheme",
-    "vite-plugin-splash-screen": "file:.yalc/vite-plugin-splash-screen"
+    "vite-plugin-color-scheme": "0.0.1",
+    "vite-plugin-splash-screen": "file:.."
   },
   "devDependencies": {
     "@types/node": "26.6.6",

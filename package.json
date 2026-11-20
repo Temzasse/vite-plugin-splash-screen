@@ -40,21 +40,24 @@
     "test": "vitest run",
     "build": "tsdown",
     "build:verify": "attw --pack . --profile node16",
-    "watch": "tsdown --watch --on-success \"npm run example:sync\"",
+    "watch": "tsdown --watch",
     "format:check": "oxfmt --check ./src ./test ./example/src ./example/vite.config.ts tsdown.config.mts vitest.config.mts",
     "format:write": "oxfmt --write ./src ./test ./example/src ./example/vite.config.ts tsdown.config.mts vitest.config.mts",
     "lint:check": "oxlint --deny-warnings ./src ./test ./example/src ./example/vite.config.ts tsdown.config.mts vitest.config.mts",
     "lint:write": "oxlint --deny-warnings --fix ./src ./test ./example/src ./example/vite.config.ts tsdown.config.mts vitest.config.mts",
     "typecheck": "tsc --noEmit",
     "verify": "run-p format:check lint:check typecheck",
-    "example:link": "yalc publish --push && cd example && yalc add vite-plugin-splash-screen && npm i",
-    "example:sync": "yalc push && cd example && npm i",
-    "release": "npm run verify && npm run build && npm run build:verify && np"
+    "release": "npm run verify && npm run build && npm run build:verify && np",
+    "example:dev": "npm --prefix example run dev",
+    "example:build": "npm --prefix example run build",
+    "example:install": "npm --prefix example install",
+    "example:deploy": "npm run build && npm --prefix example run build -- --base=/vite-plugin-splash-screen/ && gh-pages --dist example/dist --nojekyll --message \"Deploy example\""
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@types/jsdom": "30.0.0",
     "@types/node": "26.6.6",
+    "gh-pages": "6.3.0",
     "jsdom": "31.0.1",
     "npm-run-all": "4.1.5",
     "oxfmt": "0.79.0",
@@ -65,5 +68,6 @@
     "vitest": "5.1.1"
   },
   "repository": "https://github.com/Temzasse/vite-plugin-splash-screen",
-  "module": "./dist/plugin/plugin.mjs"
+  "module": "./dist/plugin/plugin.mjs",
+  "homepage": "https://temzasse.github.io/vite-plugin-splash-screen/"
 }

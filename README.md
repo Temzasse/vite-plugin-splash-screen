@@ -14,6 +14,8 @@
 
 ![Demo of vite-plugin-splash-screen with line style loading indicator](media/demo-1.gif)
 
+**[Try the examples online →](https://temzasse.github.io/vite-plugin-splash-screen/)**
+
 ## 💦 Features
 
 When building a Single-Page-Application (SPA) that is fully rendered on the client side (CSR), it is common to only send a minimal HTML file to the client which only defines a single div as the root of the app and includes links and scripts to load all the necessary assets to render the application.
