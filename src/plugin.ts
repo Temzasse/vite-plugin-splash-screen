@@ -1,185 +1,121 @@
-import fs from "fs";
-import path from "path";
-import type { PluginOption, ResolvedConfig } from "vite";
+import fs from 'node:fs';
+import path from 'node:path';
 
-type LoaderType = "line" | "dots" | "none";
+import type { Plugin, ResolvedConfig } from 'vite';
 
-type PluginOptions = {
-  logoSrc: string;
-  splashBg?: string;
-  loaderBg?: string;
-  loaderType?: LoaderType;
-  minDurationMs?: number;
+import { renderTags } from './html';
+import { resolveOptions, type SplashScreenOptions } from './options';
+
+export type { LoaderType, SplashScreenOptions } from './options';
+
+/** @deprecated Use `SplashScreenOptions` instead. */
+export type PluginOptions = SplashScreenOptions;
+
+/** A user-provided file that is inlined into the page */
+type InlinedFile = {
+  label: string;
+  option: 'logoSrc' | 'loaderSrc';
+  src: string;
+  path: string;
 };
 
-export function splashScreen(options: PluginOptions) {
-  if (!options.logoSrc) {
+export function splashScreen(options: SplashScreenOptions): Plugin {
+  const resolved = resolveOptions(options);
+
+  let config: ResolvedConfig;
+  let logo: InlinedFile;
+  let customLoader: InlinedFile | undefined;
+
+  return {
+    name: 'vite-plugin-splash-screen',
+    configResolved(resolvedConfig) {
+      config = resolvedConfig;
+      logo = resolveFile('Logo', 'logoSrc', resolved.logoSrc, config);
+
+      if (resolved.loaderSrc) {
+        customLoader = resolveFile(
+          'Loader',
+          'loaderSrc',
+          resolved.loaderSrc,
+          config
+        );
+      }
+    },
+    configureServer(server) {
+      // Full reload when an inlined file changes, since it is part of the HTML
+      const watched = [logo, customLoader]
+        .filter((file) => file !== undefined)
+        .map((file) => file.path);
+
+      server.watcher.add(watched);
+
+      const onChange = (file: string) => {
+        if (watched.includes(path.resolve(file))) {
+          server.ws.send({ type: 'full-reload' });
+        }
+      };
+
+      server.watcher.on('change', onChange);
+      server.watcher.on('add', onChange);
+    },
+    transformIndexHtml() {
+      return renderTags(resolved, {
+        logoHtml: readFile(logo),
+        customLoaderHtml: customLoader ? readFile(customLoader) : undefined,
+        nonce: config.html?.cspNonce,
+      });
+    },
+  };
+}
+
+/**
+ * Candidates in order of precedence:
+ * - Absolute path: as-is, then relative to `publicDir` (eg. `/logo.svg`)
+ * - Relative path: relative to `publicDir`, then to the project root
+ */
+function resolveFile(
+  label: string,
+  option: InlinedFile['option'],
+  src: string,
+  config: ResolvedConfig
+): InlinedFile {
+  const publicDir = config.publicDir || undefined;
+  const candidates: string[] = [];
+
+  if (path.isAbsolute(src)) {
+    candidates.push(src);
+    if (publicDir) candidates.push(path.join(publicDir, src));
+  } else {
+    if (publicDir) candidates.push(path.resolve(publicDir, src));
+    candidates.push(path.resolve(config.root, src));
+  }
+
+  const found = candidates.find((candidate) => isFile(candidate));
+
+  if (!found) {
     throw new Error(
-      "The `logoSrc` option is required for vite-plugin-splash-screen!"
+      `[vite-plugin-splash-screen] ${label} file not found for \`${option}: ${JSON.stringify(src)}\`. Tried:\n${candidates.map((c) => `  - ${c}`).join('\n')}`
     );
   }
 
-  const {
-    logoSrc,
-    minDurationMs,
-    loaderType = "line",
-    loaderBg = "#0072f5",
-    splashBg = "#ffffff",
-  } = options;
-
-  let config: ResolvedConfig;
-
-  return {
-    name: "vite-plugin-splash-screen",
-    configResolved(resolvedConfig: any) {
-      config = resolvedConfig;
-    },
-    transformIndexHtml(html: string) {
-      const baseStyles = readPluginFile("styles.css");
-
-      let loaderStyles = "";
-
-      if (loaderType === "line") {
-        loaderStyles = readPluginFile("loaders/line.css");
-      } else if (loaderType === "dots") {
-        loaderStyles = readPluginFile("loaders/dots.css");
-      }
-
-      const logoHtml = fs.readFileSync(
-        path.resolve(config.publicDir, logoSrc),
-        "utf8"
-      );
-
-      const splash = splashTemplate({
-        logoHtml,
-        loaderType,
-        minDurationMs,
-      });
-
-      const b = baseStyles.replace("/*BG_SPLASH*/", splashBg);
-      const l = loaderStyles.replace("/*BG_LOADER*/", loaderBg);
-
-      const styles = `<style id="vpss-style">${b}${l}</style>`;
-
-      return (
-        html
-          // Add styles to end of head
-          .replace("</head>", `${styles}</head>`)
-          // Add splash screen to end of body
-          .replace("</body>", `${splash}</body>`)
-      );
-    },
-  } satisfies PluginOption;
+  return { label, option, src, path: path.resolve(found) };
 }
 
-function splashTemplate({
-  logoHtml,
-  loaderType,
-  minDurationMs,
-}: {
-  logoHtml: string;
-  loaderType: LoaderType;
-  minDurationMs?: number;
-}) {
-  /**
-   * TODO: add more loader options.
-   * Inspiration: https://cssloaders.github.io/
-   */
-  let loaderHtml = "";
-
-  if (loaderType === "line") {
-    loaderHtml = readPluginFile("loaders/line.html");
-  } else if (loaderType === "dots") {
-    loaderHtml = readPluginFile("loaders/dots.html");
+function readFile(file: InlinedFile) {
+  try {
+    return fs.readFileSync(file.path, 'utf8');
+  } catch (error) {
+    throw new Error(
+      `[vite-plugin-splash-screen] Could not read ${file.label.toLowerCase()} file ${file.path} (\`${file.option}: ${JSON.stringify(file.src)}\`).`,
+      { cause: error }
+    );
   }
-
-  return /*html*/ `
-    <div id="vpss">
-      <div class="vpss-logo">${logoHtml}</div>
-      ${loaderHtml}
-    </div>
-    <script>
-      (function () {
-        const id = "vpss";
-        const url = new URL(window.location.href);
-        const urlParams = new URLSearchParams(url.search)
-        const param = urlParams.get(id);
-        
-        // Setup global options
-        window.__VPSS__ = {
-          id: id,
-          hidden: param === "false",
-          renderedAt: new Date().getTime(),
-          minDurationMs: ${minDurationMs || 0},
-          getElement: function() {
-            return document.getElementById(id);
-          },
-          getStyles: function() {
-            return document.getElementById(id + "-style");
-          },
-          show: function () {
-            const element = this.getElement();
-            if (!element) return;
-
-            element.style.visibility = "visible";
-          },
-          hide: async function () {
-            const element = this.getElement();
-            if (!element) return;
-
-            // Set hidden flag to prevent multiple calls
-            this.hidden = true;
-
-            // Optionally wait for minDurationMs before starting animation
-            if (
-              this.minDurationMs !== undefined &&
-              this.renderedAt !== undefined
-            ) {
-              const elapsedTime = new Date().getTime() - this.renderedAt;
-              const remainingTime = Math.max(this.minDurationMs - elapsedTime, 0);
-              await new Promise((resolve) => setTimeout(resolve, remainingTime));
-            }
-
-            const animation = element.animate(
-              [{ opacity: 1 }, { opacity: 0 }],
-              { duration: 200, easing: "ease-out", fill: "forwards" }
-            );
-
-            animation.onfinish = () => {
-              this.remove();
-            };
-          },
-          remove: function () {
-            const element = this.getElement();
-            const styles = this.getStyles();
-
-            if (element && styles) {
-              element.remove();
-              styles.remove();
-            }
-          }
-        };
-
-        if (window.__VPSS__.hidden) {
-          window.__VPSS__.remove();
-        } else {
-          window.__VPSS__.show();
-        }
-        
-        // Remove query param from URL
-        if (param) {
-          urlParams.delete(id);
-          url.search = urlParams.toString();
-          window.history.replaceState({}, "", url);
-        }
-      })();
-    </script>
-  `;
 }
 
-// TODO: is there an easier way to resolve static files relative to the plugin?
-const pluginPath = "node_modules/vite-plugin-splash-screen/src";
-
-function readPluginFile(filePath: string) {
-  return fs.readFileSync(path.resolve(pluginPath, filePath), "utf8");
+function isFile(filePath: string) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
 }

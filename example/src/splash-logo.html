@@ -1,0 +1,58 @@
+<!-- Example animated HTML logo. All CSS is scoped under #example-logo because
+an inlined <style> applies to the whole page. -->
+<div id="example-logo">
+  <style>
+    #example-logo {
+      font:
+        700 40px/1 system-ui,
+        sans-serif;
+      letter-spacing: 0.04em;
+      color: var(--vpss-bg-loader, #0072f5);
+    }
+    #example-logo span {
+      display: inline-block;
+      opacity: 0;
+      animation: example-logo-in 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    #example-logo span:nth-of-type(2) {
+      animation-delay: 250ms;
+    }
+    #example-logo span:nth-of-type(3) {
+      animation-delay: 500ms;
+    }
+    #example-logo span:nth-of-type(4) {
+      animation-delay: 750ms;
+    }
+
+    /* One-shot exit animation, waited for with `waitForAnimations: true` */
+    #vpss[data-vpss-state='hiding'] #example-logo {
+      animation: example-logo-out 700ms ease-in forwards;
+    }
+
+    @keyframes example-logo-in {
+      from {
+        opacity: 0;
+        transform: translateY(-24px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes example-logo-out {
+      to {
+        opacity: 0;
+        transform: scale(1.15);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #example-logo span,
+      #vpss[data-vpss-state='hiding'] #example-logo {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+  <span>V</span><span>P</span><span>S</span><span>S</span>
+</div>

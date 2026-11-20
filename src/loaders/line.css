@@ -48,3 +48,13 @@
     width: 10%;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  #vpss .vpss-loader .vpss-inc {
+    left: 0;
+    width: 100%;
+  }
+  #vpss .vpss-loader .vpss-dec {
+    display: none;
+  }
+}

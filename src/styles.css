@@ -14,3 +14,23 @@
   z-index: 99999;
   opacity: 1;
 }
+
+/* Reduced motion: replace moving loaders with a gentle opacity pulse */
+@media (prefers-reduced-motion: reduce) {
+  #vpss .vpss-loader {
+    animation: vpss-pulse 2s ease-in-out infinite;
+  }
+  #vpss .vpss-loader * {
+    animation: none !important;
+  }
+}
+
+@keyframes vpss-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
