@@ -1,179 +1,91 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
-import type { PluginOption, ResolvedConfig } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 
-import dotsHtml from './loaders/dots.html?raw';
-import lineHtml from './loaders/line.html?raw';
+import { renderTags } from './html';
+import { resolveOptions, type SplashScreenOptions } from './options';
 
-import dotsCss from './loaders/dots.css?raw';
-import lineCss from './loaders/line.css?raw';
-import baseStyles from './styles.css?raw';
+export type { LoaderType, SplashScreenOptions } from './options';
 
-type LoaderType = 'line' | 'dots' | 'none';
+/** @deprecated Use `SplashScreenOptions` instead. */
+export type PluginOptions = SplashScreenOptions;
 
-// CSS/HTML assets are inlined into the bundle as strings at build time
-const loaders: Record<LoaderType, { css: string; html: string }> = {
-  line: { css: lineCss, html: lineHtml },
-  dots: { css: dotsCss, html: dotsHtml },
-  none: { css: '', html: '' },
-};
-
-type PluginOptions = {
-  logoSrc: string;
-  splashBg?: string;
-  loaderBg?: string;
-  loaderType?: LoaderType;
-  minDurationMs?: number;
-};
-
-export function splashScreen(options: PluginOptions) {
-  if (!options.logoSrc) {
-    throw new Error(
-      'The `logoSrc` option is required for vite-plugin-splash-screen!'
-    );
-  }
-
-  const {
-    logoSrc,
-    minDurationMs,
-    loaderType = 'line',
-    loaderBg = '#0072f5',
-    splashBg = '#ffffff',
-  } = options;
+export function splashScreen(options: SplashScreenOptions): Plugin {
+  const resolved = resolveOptions(options);
 
   let config: ResolvedConfig;
+  let logoPath: string;
 
   return {
     name: 'vite-plugin-splash-screen',
-    configResolved(resolvedConfig: ResolvedConfig) {
+    configResolved(resolvedConfig) {
       config = resolvedConfig;
+      logoPath = resolveLogoPath(resolved.logoSrc, config);
     },
-    transformIndexHtml(html: string) {
-      const loaderStyles = loaders[loaderType].css;
+    configureServer(server) {
+      // Full reload when the logo changes, since it is inlined into index.html
+      server.watcher.add(logoPath);
 
-      const logoHtml = fs.readFileSync(
-        path.resolve(config.publicDir, logoSrc),
-        'utf8'
-      );
+      const onLogoChange = (file: string) => {
+        if (path.resolve(file) === logoPath) {
+          server.ws.send({ type: 'full-reload' });
+        }
+      };
 
-      const splash = splashTemplate({
-        logoHtml,
-        loaderType,
-        minDurationMs,
-      });
-
-      const b = baseStyles.replace('/*BG_SPLASH*/', splashBg);
-      const l = loaderStyles.replace('/*BG_LOADER*/', loaderBg);
-
-      const styles = `<style id="vpss-style">${b}${l}</style>`;
-
-      return (
-        html
-          // Add styles to end of head
-          .replace('</head>', `${styles}</head>`)
-          // Add splash screen to end of body
-          .replace('</body>', `${splash}</body>`)
-      );
+      server.watcher.on('change', onLogoChange);
+      server.watcher.on('add', onLogoChange);
     },
-  } satisfies PluginOption;
+    transformIndexHtml() {
+      const logoHtml = readLogo(logoPath, resolved.logoSrc);
+      return renderTags(resolved, logoHtml, config.html?.cspNonce);
+    },
+  };
 }
 
-function splashTemplate({
-  logoHtml,
-  loaderType,
-  minDurationMs,
-}: {
-  logoHtml: string;
-  loaderType: LoaderType;
-  minDurationMs?: number;
-}) {
-  /**
-   * TODO: add more loader options.
-   * Inspiration: https://cssloaders.github.io/
-   */
-  const loaderHtml = loaders[loaderType].html;
+/**
+ * Candidates in order of precedence:
+ * - Absolute path: as-is, then relative to `publicDir` (eg. `/logo.svg`)
+ * - Relative path: relative to `publicDir`, then to the project root
+ */
+function resolveLogoPath(logoSrc: string, config: ResolvedConfig) {
+  const publicDir = config.publicDir || undefined;
+  const candidates: string[] = [];
 
-  return /*html*/ `
-    <div id="vpss">
-      <div class="vpss-logo">${logoHtml}</div>
-      ${loaderHtml}
-    </div>
-    <script>
-      (function () {
-        const id = "vpss";
-        const url = new URL(window.location.href);
-        const urlParams = new URLSearchParams(url.search)
-        const param = urlParams.get(id);
-        
-        // Setup global options
-        window.__VPSS__ = {
-          id: id,
-          hidden: param === "false",
-          renderedAt: new Date().getTime(),
-          minDurationMs: ${minDurationMs || 0},
-          getElement: function() {
-            return document.getElementById(id);
-          },
-          getStyles: function() {
-            return document.getElementById(id + "-style");
-          },
-          show: function () {
-            const element = this.getElement();
-            if (!element) return;
+  if (path.isAbsolute(logoSrc)) {
+    candidates.push(logoSrc);
+    if (publicDir) candidates.push(path.join(publicDir, logoSrc));
+  } else {
+    if (publicDir) candidates.push(path.resolve(publicDir, logoSrc));
+    candidates.push(path.resolve(config.root, logoSrc));
+  }
 
-            element.style.visibility = "visible";
-          },
-          hide: async function () {
-            const element = this.getElement();
-            if (!element) return;
+  const found = candidates.find((candidate) => isFile(candidate));
 
-            // Set hidden flag to prevent multiple calls
-            this.hidden = true;
+  if (!found) {
+    throw new Error(
+      `[vite-plugin-splash-screen] Logo file not found for \`logoSrc: ${JSON.stringify(logoSrc)}\`. Tried:\n${candidates.map((c) => `  - ${c}`).join('\n')}`
+    );
+  }
 
-            // Optionally wait for minDurationMs before starting animation
-            if (
-              this.minDurationMs !== undefined &&
-              this.renderedAt !== undefined
-            ) {
-              const elapsedTime = new Date().getTime() - this.renderedAt;
-              const remainingTime = Math.max(this.minDurationMs - elapsedTime, 0);
-              await new Promise((resolve) => setTimeout(resolve, remainingTime));
-            }
+  return path.resolve(found);
+}
 
-            const animation = element.animate(
-              [{ opacity: 1 }, { opacity: 0 }],
-              { duration: 200, easing: "ease-out", fill: "forwards" }
-            );
+function readLogo(logoPath: string, logoSrc: string) {
+  try {
+    return fs.readFileSync(logoPath, 'utf8');
+  } catch (error) {
+    throw new Error(
+      `[vite-plugin-splash-screen] Could not read logo file ${logoPath} (\`logoSrc: ${JSON.stringify(logoSrc)}\`).`,
+      { cause: error }
+    );
+  }
+}
 
-            animation.onfinish = () => {
-              this.remove();
-            };
-          },
-          remove: function () {
-            const element = this.getElement();
-            const styles = this.getStyles();
-
-            if (element && styles) {
-              element.remove();
-              styles.remove();
-            }
-          }
-        };
-
-        if (window.__VPSS__.hidden) {
-          window.__VPSS__.remove();
-        } else {
-          window.__VPSS__.show();
-        }
-        
-        // Remove query param from URL
-        if (param) {
-          urlParams.delete(id);
-          url.search = urlParams.toString();
-          window.history.replaceState({}, "", url);
-        }
-      })();
-    </script>
-  `;
+function isFile(filePath: string) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
 }
