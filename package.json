@@ -34,8 +34,7 @@
     }
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "test": "echo \"No tests\" && exit 0",

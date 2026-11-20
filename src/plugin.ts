@@ -3,7 +3,21 @@ import path from 'path';
 
 import type { PluginOption, ResolvedConfig } from 'vite';
 
+import dotsHtml from './loaders/dots.html?raw';
+import lineHtml from './loaders/line.html?raw';
+
+import dotsCss from './loaders/dots.css?raw';
+import lineCss from './loaders/line.css?raw';
+import baseStyles from './styles.css?raw';
+
 type LoaderType = 'line' | 'dots' | 'none';
+
+// CSS/HTML assets are inlined into the bundle as strings at build time
+const loaders: Record<LoaderType, { css: string; html: string }> = {
+  line: { css: lineCss, html: lineHtml },
+  dots: { css: dotsCss, html: dotsHtml },
+  none: { css: '', html: '' },
+};
 
 type PluginOptions = {
   logoSrc: string;
@@ -36,15 +50,7 @@ export function splashScreen(options: PluginOptions) {
       config = resolvedConfig;
     },
     transformIndexHtml(html: string) {
-      const baseStyles = readPluginFile('styles.css');
-
-      let loaderStyles = '';
-
-      if (loaderType === 'line') {
-        loaderStyles = readPluginFile('loaders/line.css');
-      } else if (loaderType === 'dots') {
-        loaderStyles = readPluginFile('loaders/dots.css');
-      }
+      const loaderStyles = loaders[loaderType].css;
 
       const logoHtml = fs.readFileSync(
         path.resolve(config.publicDir, logoSrc),
@@ -86,13 +92,7 @@ function splashTemplate({
    * TODO: add more loader options.
    * Inspiration: https://cssloaders.github.io/
    */
-  let loaderHtml = '';
-
-  if (loaderType === 'line') {
-    loaderHtml = readPluginFile('loaders/line.html');
-  } else if (loaderType === 'dots') {
-    loaderHtml = readPluginFile('loaders/dots.html');
-  }
+  const loaderHtml = loaders[loaderType].html;
 
   return /*html*/ `
     <div id="vpss">
@@ -176,11 +176,4 @@ function splashTemplate({
       })();
     </script>
   `;
-}
-
-// TODO: is there an easier way to resolve static files relative to the plugin?
-const pluginPath = 'node_modules/vite-plugin-splash-screen/src';
-
-function readPluginFile(filePath: string) {
-  return fs.readFileSync(path.resolve(pluginPath, filePath), 'utf8');
 }
